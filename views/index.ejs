@@ -1,849 +1,119 @@
-<!DOCTYPE html>
-<html lang="id" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SA-MP Lua Studio Suite v2.0</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome 6 Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+const express = require('express');
+const path = require('path');
+const luaparse = require('luaparse');
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
-                }
-            }
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Set EJS sebagai Template Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Pola Deteksi Bahaya / Stealer
+const dangerPatterns = [
+    { pattern: /loadstring/i, desc: 'Eksekusi kode jarak jauh (`loadstring`)' },
+    { pattern: /downloadFile|asyncHttpRequest/i, desc: 'Mencoba mengunduh file otomatis / Request latar belakang' },
+    { pattern: /http\.request|socket\.http|copas\.http/i, desc: 'Koneksi HTTP ke luar server' },
+    { pattern: /discord\.com\/api\/webhooks/i, desc: 'Potensi Webhook Stealer (Mengirim data ke Discord)' },
+    { pattern: /os\.execute|os\.remove|os\.rename/i, desc: 'Akses sistem file / Command Prompt OS' },
+    { pattern: /getBotToken|getToken|passWord|sampGetPlayerPassword/i, desc: 'Pencarian data sensitif / Password / Token' },
+    { pattern: /string\.char\(\s*\d+(\s*,\s*\d+){5,}\)/i, desc: 'Enkripsi Bytecode (`string.char`) - Kode disamarkan' },
+    { pattern: /\\x[0-9a-fA-F]{2}/i, desc: 'Hex Obfuscation (`\\xXX`) - Kode disamarkan' },
+    { pattern: /sampGetPlayerNickname|getUsername/i, desc: 'Pengambilan Username / Nickname Pemain' },
+    { pattern: /onWindowMessage|getAsyncKeyState|vkeys/i, desc: 'Pencatatan input tombol / Potensi Keylogger' }
+];
+
+// Route Utama
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
+// API Cek Syntax & Keamanan Lua
+app.post('/api/check-lua', (req, res) => {
+    const { code } = req.body;
+    if (!code || code.trim() === '') {
+        return res.json({ success: false, message: 'Kode Lua tidak boleh kosong!' });
+    }
+
+    let syntaxValid = false;
+    let syntaxError = null;
+
+    try {
+        luaparse.parse(code, { luaVersion: '5.1' });
+        syntaxValid = true;
+    } catch (err) {
+        syntaxError = `Error Sintaks pada Baris ${err.line}, Kolom ${err.column}: ${err.message}`;
+    }
+
+    const detectedWarnings = [];
+    dangerPatterns.forEach(item => {
+        if (item.pattern.test(code)) {
+            detectedWarnings.push(item.desc);
         }
-    </script>
+    });
 
-    <style>
-        body {
-            background-color: #070a12;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
-            background-attachment: fixed;
+    return res.json({
+        success: true,
+        syntaxValid,
+        syntaxError,
+        warnings: detectedWarnings
+    });
+});
+
+// API Obfuscate Lua
+app.post('/api/obfuscate-lua', (req, res) => {
+    const { code } = req.body;
+    if (!code || code.trim() === '') {
+        return res.json({ success: false, message: 'Kode Lua tidak boleh kosong!' });
+    }
+
+    try {
+        luaparse.parse(code, { luaVersion: '5.1' });
+
+        const bytes = [];
+        for (let i = 0; i < code.length; i++) {
+            bytes.push(code.charCodeAt(i));
         }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0d1322; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        const varData = '_0x' + Math.random().toString(36).substring(2, 8);
+        const varStr = '_0x' + Math.random().toString(36).substring(2, 8);
 
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+        const obfuscatedCode = `-- ===============================================
+-- Protected with SAMP-TOOLS VERNOZ v3.0
+-- Compatible: Moonloader (PC) & Monetloader (Android)
+-- ===============================================
+local ${varData} = {${bytes.join(',')}}
+local ${varStr} = ""
+for i = 1, #${varData} do
+    ${varStr} = ${varStr} .. string.char(${varData}[i])
+end
+local _exec = loadstring or load
+local _fn, _err = _exec(${varStr})
+if not _fn then
+    error("Gagal menjalankan script: " .. tostring(_err))
+else
+    _fn()
+end`;
 
-        .dropzone-active {
-            border-color: #06b6d4 !important;
-            background-color: rgba(6, 182, 212, 0.15) !important;
-        }
-
-        #sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        pre, code {
-            white-space: pre-wrap !important;
-            word-break: break-all !important;
-            overflow-x: auto !important;
-        }
-    </style>
-</head>
-<body class="font-sans text-slate-200 min-h-screen flex flex-col justify-between p-3 sm:p-6 md:p-8 selection:bg-cyan-500 selection:text-black">
-
-    <!-- OVERLAY SIDEBAR BACKGROUND -->
-    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity"></div>
-
-    <!-- SIDEBAR NAVIGATION DRAWER -->
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full p-6 flex flex-col justify-between shadow-2xl glass-panel">
-        <div>
-            <!-- Header Sidebar -->
-            <div class="flex items-center justify-between pb-6 border-b border-slate-800">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad text-cyan-400 text-xl"></i>
-                    <span class="font-bold text-white text-lg">SA-MP Studio</span>
-                </div>
-                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-2 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <!-- Menu Navigation List -->
-            <nav class="mt-6 space-y-2">
-                <button onclick="selectTool('check')" id="nav-check" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    <i class="fa-solid fa-shield-halved text-lg"></i> 1. Cek & Scan Lua
-                </button>
-                <button onclick="selectTool('obfuscate')" id="nav-obfuscate" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
-                    <i class="fa-solid fa-lock text-lg"></i> 2. Obfuscator Lua
-                </button>
-                <button onclick="selectTool('ssrp')" id="nav-ssrp" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
-                    <i class="fa-solid fa-camera text-lg"></i> 3. SSRP Maker / Chat RP
-                </button>
-                <button onclick="selectTool('vkeys')" id="nav-vkeys" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
-                    <i class="fa-solid fa-keyboard text-lg"></i> 4. Keycode Finder
-                </button>
-                <button onclick="selectTool('dialog')" id="nav-dialog" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
-                    <i class="fa-solid fa-window-restore text-lg"></i> 5. Dialog Generator
-                </button>
-            </nav>
-        </div>
-
-        <div class="text-xs text-slate-500 text-center border-t border-slate-800 pt-4">
-            SA-MP Studio v2.0 &bull; Moonloader / Monetloader
-        </div>
-    </aside>
-
-    <!-- CONTAINER UTAMA -->
-    <div class="max-w-6xl mx-auto w-full overflow-hidden">
-        
-        <!-- BARIS TOPBAR -->
-        <header class="flex items-center justify-between mb-8">
-            <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 text-cyan-400 rounded-2xl shadow-lg transition flex items-center gap-2">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                    <span class="text-xs font-bold text-slate-200 hidden sm:inline">Menu Tools</span>
-                </button>
-
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2">
-                        SA-MP <span id="tool-title-header" class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-500">Lua Studio</span>
-                    </h1>
-                </div>
-            </div>
-
-            <span class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
-                <i class="fa-solid fa-code-commit text-cyan-400 mr-1"></i> v2.0
-            </span>
-        </header>
-
-        <!-- TOOL 1: CEK SYNTAX & KEAMANAN LUA -->
-        <div id="tool-check" class="glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved text-cyan-400"></i> Auto Live Scanner & Security Detector
-                    </h2>
-                    <p class="text-slate-400 text-xs sm:text-sm">Tarik & lepas file `.lua` ke area editor atau ketik langsung untuk pemindaian otomatis.</p>
-                </div>
-                
-                <label class="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-cyan-300 transition shadow-md">
-                    <i class="fa-solid fa-file-arrow-up text-cyan-400"></i> Pilih File .LUA
-                    <input type="file" id="file-picker-check" accept=".lua,.txt" class="hidden">
-                </label>
-            </div>
-            
-            <div id="dropzone-check" class="relative rounded-2xl overflow-hidden border-2 border-dashed border-slate-700/80 focus-within:border-cyan-500 transition-all bg-slate-950/80">
-                <textarea id="lua-check-input" oninput="onInputCheck()" rows="12" class="w-full bg-transparent p-4 text-cyan-100 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Tarik & lepas file .lua di sini, atau ketik kode Lua GTA SA-MP kamu...&#10;function main()&#10;    if not isSampLoaded() or not isSampfuncsLoaded() then return end&#10;    while not isSampAvailable() do wait(100) end&#10;    sampAddChatMessage('{00FF00}[Studio]{FFFFFF} Script berhasil dimuat!', -1)&#10;end"></textarea>
-                
-                <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
-                    <span id="check-stats"><i class="fa-regular fa-file-code mr-1"></i> 0 Baris | 0 Karakter</span>
-                    <button onclick="clearCheckArea()" class="hover:text-red-400 transition">
-                        <i class="fa-solid fa-trash-can mr-1"></i> Bersihkan
-                    </button>
-                </div>
-            </div>
-
-            <div id="check-result" class="hidden mt-6 space-y-3"></div>
-        </div>
-
-        <!-- TOOL 2: OBFUSCATOR LUA -->
-        <div id="tool-obfuscate" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-lock text-indigo-400"></i> Lua Bytecode Encrypter
-                    </h2>
-                    <p class="text-slate-400 text-xs sm:text-sm">Enkripsi kode Lua kamu agar aman dari decompile atau pencurian karya.</p>
-                </div>
-
-                <label class="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-indigo-300 transition shadow-md">
-                    <i class="fa-solid fa-file-arrow-up text-indigo-400"></i> Pilih File .LUA
-                    <input type="file" id="file-picker-obf" accept=".lua,.txt" class="hidden">
-                </label>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-code text-cyan-400"></i> Kode Asli (Source)
-                    </label>
-                    <div id="dropzone-obf" class="rounded-2xl overflow-hidden border-2 border-dashed border-slate-700/80 focus-within:border-indigo-500 transition-all bg-slate-950/80">
-                        <textarea id="lua-obf-input" oninput="updateStats('obf')" rows="12" class="w-full bg-transparent p-4 text-slate-200 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Tarik & lepas file .lua di sini atau ketik kode asli...&#10;print('Hello SA-MP World')"></textarea>
-                        <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 text-xs text-slate-400 font-mono">
-                            <span id="obf-stats"><i class="fa-regular fa-file-code mr-1"></i> 0 Baris</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-shield text-emerald-400"></i> Hasil Obfuscated (Protected)
-                    </label>
-                    <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                        <textarea id="lua-obf-output" readonly rows="12" class="w-full bg-transparent p-4 text-emerald-400 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-700 leading-relaxed" placeholder="Hasil terenkripsi akan muncul di sini..."></textarea>
-                        <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
-                            <span>Status: Ready</span>
-                            <span class="text-emerald-400"><i class="fa-solid fa-check-double mr-1"></i> Moonloader / Monetloader</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="obf-status" class="hidden mt-4"></div>
-
-            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <button onclick="obfuscateLua()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Encrypt Sekarang
-                </button>
-                <button onclick="copyOutput('lua-obf-output')" class="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
-                    <i class="fa-regular fa-copy"></i> Salin Hasil Kode
-                </button>
-            </div>
-        </div>
-
-        <!-- TOOL 3: SSRP MAKER / CHAT RP GENERATOR -->
-        <div id="tool-ssrp" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <div class="mb-6">
-                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-camera text-purple-400"></i> SSRP Maker & Auto Chat RP Generator
-                </h2>
-                <p class="text-slate-400 text-xs sm:text-sm">Unggah gambar screenshot GTA SA-MP milikmu dan buat teks RP otomatis tanpa ribet.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Panel Pengaturan Teks -->
-                <div class="lg:col-span-5 space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">1. Upload Gambar Screenshot</label>
-                        <input type="file" id="ssrp-img-input" accept="image/*" onchange="loadSSRPImage(event)" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 bg-slate-950 p-2 rounded-2xl border border-slate-800 cursor-pointer">
-                    </div>
-
-                    <!-- Input Nama Character & Teks RP -->
-                    <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
-                        <span class="block text-xs font-bold text-purple-400 uppercase">2. Pengaturan Teks Roleplay</span>
-                        
-                        <div>
-                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Nama Character / Player</label>
-                            <input type="text" id="ssrp-char-name" value="Ramzyy" placeholder="Contoh: Ramzyy" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Teks Chat / Aksi RP</label>
-                            <input type="text" id="ssrp-text-input" placeholder="Contoh: halo" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[10px] uppercase text-slate-400 mb-1">Tipe Command</label>
-                                <select id="ssrp-type-select" onchange="applySSRPTypePreset()" class="w-full bg-slate-900 border border-slate-700 p-2 rounded-xl text-white text-xs font-semibold">
-                                    <option value="me">/me (Otomatis *)</option>
-                                    <option value="do">/do (Otomatis (( Nama )))</option>
-                                    <option value="talk">Chat Biasa (Otomatis says:)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] uppercase text-slate-400 mb-1">Warna Hex</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="color" id="ssrp-color-picker" value="#C2A2DA" class="w-8 h-8 rounded-lg bg-transparent cursor-pointer border-0">
-                                    <input type="text" id="ssrp-color-hex" value="#C2A2DA" class="w-full bg-slate-900 border border-slate-700 p-2 rounded-xl text-white text-xs font-mono uppercase">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[10px] uppercase text-slate-400 mb-1">Ukuran Font: <span id="lbl-font-size">16</span>px</label>
-                                <input type="range" id="ssrp-font-size" min="12" max="28" value="16" oninput="document.getElementById('lbl-font-size').innerText=this.value; renderSSRP();" class="w-full accent-purple-500">
-                            </div>
-                            <div class="flex items-center pt-3">
-                                <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-300">
-                                    <input type="checkbox" id="ssrp-font-bold" checked onchange="renderSSRP()" class="w-4 h-4 rounded accent-purple-500">
-                                    Teks Tebal (Bold)
-                                </label>
-                            </div>
-                        </div>
-
-                        <button onclick="addSSRPLine()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30">
-                            <i class="fa-solid fa-plus"></i> Tambahkan Baris SSRP
-                        </button>
-                    </div>
-
-                    <!-- Daftar Baris Teks -->
-                    <div>
-                        <span class="block text-xs font-bold text-slate-400 uppercase mb-2">Daftar Baris Teks Terpasang</span>
-                        <div id="ssrp-lines-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                            <div class="text-xs text-slate-500 italic">Belum ada baris teks ditambahkan.</div>
-                        </div>
-                    </div>
-
-                    <!-- Pengaturan Posisi Teks -->
-                    <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                        <span class="font-bold text-slate-400">Posisi Teks pada Gambar:</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-[10px] text-slate-400">Posisi X (Kiri/Kanan):</label>
-                                <input type="range" id="ssrp-pos-x" min="10" max="100" value="20" oninput="renderSSRP()" class="w-full accent-purple-500">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-400">Posisi Y (Atas/Bawah):</label>
-                                <input type="range" id="ssrp-pos-y" min="20" max="500" value="40" oninput="renderSSRP()" class="w-full accent-purple-500">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Canvas Preview -->
-                <div class="lg:col-span-7 flex flex-col items-center">
-                    <span class="block text-xs font-bold uppercase text-slate-400 mb-2 w-full">Hasil Preview SSRP</span>
-                    <div class="w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 p-2 flex justify-center items-center">
-                        <canvas id="ssrp-canvas" class="max-w-full h-auto rounded-xl shadow-2xl"></canvas>
-                    </div>
-
-                    <div class="mt-4 w-full flex justify-end">
-                        <button onclick="downloadSSRP()" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-purple-500/25 flex items-center gap-2">
-                            <i class="fa-solid fa-download"></i> Unduh Gambar SSRP
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TOOL 4: KEYCODE FINDER -->
-        <div id="tool-vkeys" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <div class="mb-6">
-                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-keyboard text-emerald-400"></i> SA-MP Keycode (vkeys) Finder
-                </h2>
-                <p class="text-slate-400 text-xs sm:text-sm">Tekan tombol apa saja di keyboard untuk langsung mendapatkan variabel `vkeys` Moonloader.</p>
-            </div>
-
-            <div id="key-detector-box" tabindex="0" class="p-8 rounded-3xl bg-slate-950 border-2 border-dashed border-emerald-500/40 text-center cursor-pointer focus:outline-none focus:border-emerald-400 transition mb-6">
-                <i class="fa-solid fa-hand-pointer text-3xl text-emerald-400 mb-2 animate-bounce"></i>
-                <div class="text-lg font-bold text-white">Klik di sini lalu Tekan Tombol di Keyboard Kamu</div>
-                <div class="text-xs text-slate-500 mt-1">Mendukung tombol A-Z, Angka, F1-F12, Shift, Ctrl, Alt, Enter, Space, dll.</div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-center">
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                    <div class="text-xs text-slate-500 mb-1">Nama vkeys</div>
-                    <div id="key-name" class="text-lg font-bold text-emerald-400">VK_X</div>
-                </div>
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                    <div class="text-xs text-slate-500 mb-1">Kode Hex</div>
-                    <div id="key-hex" class="text-lg font-bold text-cyan-400">0x58</div>
-                </div>
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                    <div class="text-xs text-slate-500 mb-1">Decimal ID</div>
-                    <div id="key-dec" class="text-lg font-bold text-indigo-400">88</div>
-                </div>
-            </div>
-
-            <div class="mt-6">
-                <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Potongan Kode Lua Ready-to-Use</label>
-                <div class="relative bg-slate-950 p-4 rounded-2xl border border-slate-800 font-mono text-xs text-emerald-300 overflow-x-auto">
-                    <pre id="key-snippet">local vkeys = require 'vkeys'
-
-if isKeyJustPressed(vkeys.VK_X) then
-    sampAddChatMessage("Kamu menekan tombol X!", -1)
-end</pre>
-                    <button onclick="copyOutput('key-snippet')" class="absolute top-3 right-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-sans">
-                        <i class="fa-regular fa-copy"></i> Salin Snippet
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- TOOL 5: DIALOG GENERATOR -->
-        <div id="tool-dialog" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <div class="mb-6">
-                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-window-restore text-amber-400"></i> SA-MP Dialog Generator & Live Preview
-                </h2>
-                <p class="text-slate-400 text-xs sm:text-sm">Rancang dialog game SA-MP dan dapatkan fungsi `sampShowDialog` otomatis.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="space-y-4 text-xs">
-                    <div>
-                        <label class="block font-bold text-slate-400 mb-1">Judul Dialog (Title)</label>
-                        <input type="text" id="dlg-title" value="{00FF00}Menu Utama Server" oninput="updateDialogPreview()" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white">
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block font-bold text-slate-400 mb-1">ID Dialog</label>
-                            <input type="number" id="dlg-id" value="1001" oninput="updateDialogPreview()" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white font-mono">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-400 mb-1">Style Dialog</label>
-                            <select id="dlg-style" onchange="updateDialogPreview()" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white">
-                                <option value="0">0: MSGBOX</option>
-                                <option value="1">1: INPUT</option>
-                                <option value="2">2: LIST</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block font-bold text-slate-400 mb-1">Isi Pesan / Item List (Body)</label>
-                        <textarea id="dlg-body" oninput="updateDialogPreview()" rows="4" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white font-mono" placeholder="Masukkan teks dialog...">Pilih opsi di bawah ini:&#10;1. Fitur Bantuan&#10;2. Pengaturan</textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block font-bold text-slate-400 mb-1">Tombol 1</label>
-                            <input type="text" id="dlg-b1" value="Pilih" oninput="updateDialogPreview()" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-400 mb-1">Tombol 2</label>
-                            <input type="text" id="dlg-b2" value="Batal" oninput="updateDialogPreview()" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Simulasi Tampilan Dialog SA-MP</label>
-                    <div class="bg-slate-950/90 p-5 rounded-2xl border-2 border-slate-700/80 shadow-2xl font-mono min-h-[260px] flex flex-col justify-between">
-                        <div>
-                            <div id="dlg-prev-title" class="text-center font-bold text-sm pb-2 border-b border-slate-800 text-emerald-400">
-                                Menu Utama Server
-                            </div>
-                            <div id="dlg-prev-body" class="py-4 text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
-                                Pilih opsi di bawah ini:
-1. Fitur Bantuan
-2. Pengaturan
-                            </div>
-                        </div>
-
-                        <div class="flex justify-center gap-4 pt-3 border-t border-slate-800">
-                            <button id="dlg-prev-b1" class="px-6 py-1.5 bg-slate-800 border border-slate-600 text-white rounded text-xs">Pilih</button>
-                            <button id="dlg-prev-b2" class="px-6 py-1.5 bg-slate-800 border border-slate-600 text-white rounded text-xs">Batal</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-6">
-                <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Kode Lua Moonloader Ready-to-Copy</label>
-                <div class="relative bg-slate-950 p-4 rounded-2xl border border-slate-800 font-mono text-xs text-cyan-300 overflow-x-auto">
-                    <pre id="dlg-code-output" class="whitespace-pre-wrap break-all">sampShowDialog(1001, "{00FF00}Menu Utama Server", "Pilih opsi di bawah ini:\n1. Fitur Bantuan\n2. Pengaturan", "Pilih", "Batal", 0)</pre>
-                    <button onclick="copyOutput('dlg-code-output')" class="absolute top-3 right-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-sans">
-                        <i class="fa-regular fa-copy"></i> Salin Kode Dialog
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Footer -->
-    <footer class="text-center text-slate-500 text-xs mt-8 sm:mt-12 py-4">
-        <p>SA-MP Lua Studio Suite &copy; 2026 — Dibuat untuk Komunitas Scripting SA-MP Indonesia</p>
-    </footer>
-
-    <!-- CLIENT LOGIC SCRIPT -->
-    <script>
-        let scanTimer = null;
-        let ssrpImage = null;
-        let ssrpLines = [];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setupDragAndDrop('lua-check-input', 'dropzone-check', 'file-picker-check', 'check');
-            setupDragAndDrop('lua-obf-input', 'dropzone-obf', 'file-picker-obf', 'obf');
-            setupKeyDetector();
-            updateDialogPreview();
-            initSSRPCanvas();
+        return res.json({
+            success: true,
+            result: obfuscatedCode
         });
+    } catch (err) {
+        return res.json({
+            success: false,
+            message: `Gagal Obfuscate! Perbaiki error sintaks terlebih dahulu: ${err.message}`
+        });
+    }
+});
 
-        // 1. HAMBURGER SIDEBAR TOGGLE
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('sidebar-backdrop');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                backdrop.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.add('hidden');
-            }
-        }
-
-        function selectTool(toolName) {
-            const tools = ['check', 'obfuscate', 'ssrp', 'vkeys', 'dialog'];
-            tools.forEach(t => {
-                document.getElementById(`tool-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = "w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white";
-            });
-
-            document.getElementById(`tool-${toolName}`).classList.remove('hidden');
-            document.getElementById(`nav-${toolName}`).className = "w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
-            
-            toggleSidebar();
-        }
-
-        // 2. CEK & SCAN LUA LOGIC
-        function onInputCheck() {
-            updateStats('check');
-            clearTimeout(scanTimer);
-            scanTimer = setTimeout(() => { checkLua(); }, 400);
-        }
-
-        function clearCheckArea() {
-            document.getElementById('lua-check-input').value = '';
-            document.getElementById('check-result').classList.add('hidden');
-            updateStats('check');
-        }
-
-        function setupDragAndDrop(textareaId, dropzoneId, filePickerId, type) {
-            const textarea = document.getElementById(textareaId);
-            const dropzone = document.getElementById(dropzoneId);
-            const filePicker = document.getElementById(filePickerId);
-
-            filePicker.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) processFile(file, textarea, type);
-            });
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropzone.classList.add('dropzone-active');
-                }, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropzone.classList.remove('dropzone-active');
-                }, false);
-            });
-
-            dropzone.addEventListener('drop', (e) => {
-                const files = e.dataTransfer.files;
-                if (files.length > 0) processFile(files[0], textarea, type);
-            }, false);
-        }
-
-        function processFile(file, textarea, type) {
-            if (!file.name.endsWith('.lua') && !file.name.endsWith('.txt')) {
-                alert('Peringatan: Harap pilih file .lua atau .txt!');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                textarea.value = e.target.result;
-                updateStats(type);
-                if (type === 'check') checkLua();
-            };
-            reader.readAsText(file);
-        }
-
-        function updateStats(type) {
-            if (type === 'check') {
-                const val = document.getElementById('lua-check-input').value;
-                document.getElementById('check-stats').innerHTML = `<i class="fa-regular fa-file-code mr-1"></i> ${val ? val.split('\n').length : 0} Baris | ${val.length} Karakter`;
-            } else {
-                const val = document.getElementById('lua-obf-input').value;
-                document.getElementById('obf-stats').innerHTML = `<i class="fa-regular fa-file-code mr-1"></i> ${val ? val.split('\n').length : 0} Baris`;
-            }
-        }
-
-        async function checkLua() {
-            const code = document.getElementById('lua-check-input').value;
-            const resultBox = document.getElementById('check-result');
-
-            if (!code.trim()) {
-                resultBox.classList.add('hidden');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/check-lua', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code })
-                });
-                const data = await response.json();
-
-                resultBox.classList.remove('hidden');
-                let htmlOutput = '';
-
-                if (data.syntaxValid) {
-                    htmlOutput += `<div class="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs sm:text-sm flex items-start gap-3"><i class="fa-solid fa-circle-check text-xl text-emerald-400 mt-0.5"></i><div><div class="font-bold text-white text-sm">Sintaks Lua Valid!</div><div class="opacity-90">Tidak ditemukan error sintaksis.</div></div></div>`;
-                } else {
-                    htmlOutput += `<div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-200 text-xs sm:text-sm flex items-start gap-3 font-mono"><i class="fa-solid fa-circle-xmark text-xl text-red-400 mt-0.5"></i><div><div class="font-bold text-white text-sm font-sans mb-1">Error Sintaks Ditemukan:</div><div>${data.syntaxError}</div></div></div>`;
-                }
-
-                if (data.warnings && data.warnings.length > 0) {
-                    let warningList = data.warnings.map(item => `<li class="flex items-center gap-2"><i class="fa-solid fa-chevron-right text-amber-400 text-[10px]"></i> ${item}</li>`).join('');
-                    htmlOutput += `<div class="p-4 rounded-2xl bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs sm:text-sm"><div class="font-bold text-amber-300 mb-2 flex items-center gap-2 text-sm"><i class="fa-solid fa-shield-cat text-lg text-amber-400"></i> Peringatan Potensi Bahaya / Stealer:</div><ul class="space-y-1.5 font-mono text-xs opacity-95 bg-slate-950/60 p-3 rounded-xl border border-amber-500/20">${warningList}</ul></div>`;
-                } else {
-                    htmlOutput += `<div class="p-4 rounded-2xl bg-blue-950/70 border border-blue-500/40 text-blue-200 text-xs sm:text-sm flex items-center gap-3"><i class="fa-solid fa-user-shield text-xl text-blue-400"></i><div><div class="font-bold text-white text-sm">Pemindaian Keamanan Bersih</div><div class="opacity-90">Tidak terdeteksi pola fungsi mencurigakan.</div></div></div>`;
-                }
-
-                resultBox.innerHTML = htmlOutput;
-            } catch (err) {
-                resultBox.classList.remove('hidden');
-                resultBox.innerHTML = `<div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm">✕ Gagal terhubung ke server backend.</div>`;
-            }
-        }
-
-        async function obfuscateLua() {
-            const code = document.getElementById('lua-obf-input').value;
-            const outputArea = document.getElementById('lua-obf-output');
-            const statusBox = document.getElementById('obf-status');
-
-            if (!code.trim()) {
-                statusBox.innerHTML = `<div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm">✕ Masukkan kode terlebih dahulu!</div>`;
-                statusBox.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/obfuscate-lua', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code })
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    statusBox.classList.add('hidden');
-                    outputArea.value = data.result;
-                } else {
-                    statusBox.classList.remove('hidden');
-                    statusBox.innerHTML = `<div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm font-mono">✕ ${data.message}</div>`;
-                    outputArea.value = "";
-                }
-            } catch (err) {
-                statusBox.classList.remove('hidden');
-                statusBox.innerHTML = `<div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm">✕ Gagal terhubung ke server.</div>`;
-            }
-        }
-
-        // 3. SSRP MAKER LOGIC & AUTO-FORMATTING
-        function initSSRPCanvas() {
-            const canvas = document.getElementById('ssrp-canvas');
-            canvas.width = 800;
-            canvas.height = 450;
-            renderSSRP();
-
-            document.getElementById('ssrp-color-picker').addEventListener('input', (e) => {
-                document.getElementById('ssrp-color-hex').value = e.target.value.toUpperCase();
-            });
-            document.getElementById('ssrp-color-hex').addEventListener('input', (e) => {
-                let val = e.target.value;
-                if (!val.startsWith('#')) val = '#' + val;
-                if (val.length === 7) document.getElementById('ssrp-color-picker').value = val;
-            });
-        }
-
-        function applySSRPTypePreset() {
-            const type = document.getElementById('ssrp-type-select').value;
-            const picker = document.getElementById('ssrp-color-picker');
-            const hex = document.getElementById('ssrp-color-hex');
-
-            if (type === 'me' || type === 'do') {
-                picker.value = '#C2A2DA';
-                hex.value = '#C2A2DA';
-            } else {
-                picker.value = '#FFFFFF';
-                hex.value = '#FFFFFF';
-            }
-        }
-
-        function loadSSRPImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    ssrpImage = img;
-                    const canvas = document.getElementById('ssrp-canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    
-                    document.getElementById('ssrp-pos-y').max = img.height;
-                    document.getElementById('ssrp-pos-x').max = img.width;
-                    
-                    renderSSRP();
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // LOGIKA UTAMA OTOMATISASI PENAMBAHAN FORMAT (/me, /do, dan talk)
-        function addSSRPLine() {
-            const textInput = document.getElementById('ssrp-text-input');
-            const charNameInput = document.getElementById('ssrp-char-name');
-            const rawText = textInput.value.trim();
-            const charName = charNameInput.value.trim() || 'Character';
-            const type = document.getElementById('ssrp-type-select').value;
-            const color = document.getElementById('ssrp-color-hex').value;
-            const size = parseInt(document.getElementById('ssrp-font-size').value);
-            const isBold = document.getElementById('ssrp-font-bold').checked;
-
-            if (!rawText) return;
-
-            let formattedText = rawText;
-
-            // Logika Otomatisasi Format
-            if (type === 'me') {
-                if (!rawText.startsWith('*')) {
-                    formattedText = `* ${charName} ${rawText}`;
-                }
-            } else if (type === 'do') {
-                if (!rawText.includes('((')) {
-                    formattedText = `${rawText} (( ${charName} ))`;
-                }
-            } else if (type === 'talk') {
-                // Jika belum ada kata 'says:', buat format otomatis: Nama says: Teks
-                if (!rawText.toLowerCase().includes('says:')) {
-                    formattedText = `${charName} says: ${rawText}`;
-                }
-            }
-
-            ssrpLines.push({ text: formattedText, color, size, isBold });
-            textInput.value = ''; // Bersihkan input teks
-            
-            updateSSRPLinesList();
-            renderSSRP();
-        }
-
-        function removeSSRPLine(index) {
-            ssrpLines.splice(index, 1);
-            updateSSRPLinesList();
-            renderSSRP();
-        }
-
-        function updateSSRPLinesList() {
-            const container = document.getElementById('ssrp-lines-list');
-            if (ssrpLines.length === 0) {
-                container.innerHTML = `<div class="text-xs text-slate-500 italic">Belum ada baris teks ditambahkan.</div>`;
-                return;
-            }
-
-            container.innerHTML = ssrpLines.map((line, idx) => `
-                <div class="flex items-center justify-between p-2 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono">
-                    <span style="color: ${line.color};">${line.text}</span>
-                    <button onclick="removeSSRPLine(${idx})" class="text-red-400 hover:text-red-300 p-1">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function renderSSRP() {
-            const canvas = document.getElementById('ssrp-canvas');
-            const ctx = canvas.getContext('2d');
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (ssrpImage) {
-                ctx.drawImage(ssrpImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#475569';
-                ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Unggah Gambar Screenshot untuk Menampilkan Background', canvas.width / 2, canvas.height / 2);
-                ctx.textAlign = 'left';
-            }
-
-            const startX = parseInt(document.getElementById('ssrp-pos-x').value);
-            let currentY = parseInt(document.getElementById('ssrp-pos-y').value);
-
-            ssrpLines.forEach(line => {
-                const fontWeight = line.isBold ? 'bold' : 'normal';
-                ctx.font = `${fontWeight} ${line.size}px Tahoma, Arial, sans-serif`;
-
-                // Outline hitam khas chatbox GTA SA-MP
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 3;
-                ctx.lineJoin = 'miter';
-                ctx.miterLimit = 2;
-                ctx.strokeText(line.text, startX, currentY);
-
-                // Isian warna teks
-                ctx.fillStyle = line.color;
-                ctx.fillText(line.text, startX, currentY);
-
-                currentY += line.size + 6;
-            });
-        }
-
-        function downloadSSRP() {
-            const canvas = document.getElementById('ssrp-canvas');
-            const link = document.createElement('a');
-            link.download = 'ssrp-samp-' + Date.now() + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        // 4. KEYCODE FINDER LOGIC
-        function setupKeyDetector() {
-            const box = document.getElementById('key-detector-box');
-            box.addEventListener('keydown', (e) => {
-                e.preventDefault();
-                const keyName = 'VK_' + (e.key.length === 1 ? e.key.toUpperCase() : e.key.toUpperCase());
-                const hexCode = '0x' + e.keyCode.toString(16).toUpperCase();
-                
-                document.getElementById('key-name').innerText = keyName;
-                document.getElementById('key-hex').innerText = hexCode;
-                document.getElementById('key-dec').innerText = e.keyCode;
-
-                document.getElementById('key-snippet').innerText = `local vkeys = require 'vkeys'\n\nif isKeyJustPressed(vkeys.${keyName}) then\n    sampAddChatMessage("Kamu menekan tombol ${e.key}!", -1)\nend`;
-            });
-        }
-
-        // 5. DIALOG GENERATOR LOGIC
-        function updateDialogPreview() {
-            const title = document.getElementById('dlg-title').value;
-            const id = document.getElementById('dlg-id').value;
-            const body = document.getElementById('dlg-body').value;
-            const b1 = document.getElementById('dlg-b1').value;
-            const b2 = document.getElementById('dlg-b2').value;
-            const style = document.getElementById('dlg-style').value;
-
-            document.getElementById('dlg-prev-title').innerText = title.replace(/\{[0-9a-fA-F]{6}\}/g, '');
-            document.getElementById('dlg-prev-body').innerText = body;
-            document.getElementById('dlg-prev-b1').innerText = b1;
-            document.getElementById('dlg-prev-b2').innerText = b2;
-
-            const escapedBody = body.replace(/\n/g, '\\n');
-            document.getElementById('dlg-code-output').innerText = `sampShowDialog(${id}, "${title}", "${escapedBody}", "${b1}", "${b2}", ${style})`;
-        }
-
-        function copyOutput(elementId) {
-            const el = document.getElementById(elementId);
-            const text = el.value || el.innerText;
-            if (!text) return;
-            navigator.clipboard.writeText(text);
-            alert('✓ Kode berhasil disalin ke clipboard!');
-        }
-    </script>
-</body>
-</html>
+// Menjalankan Server
+app.listen(PORT, () => {
+    console.log(`=================================================`);
+    console.log(`SAMP-TOOLS VERNOZ v3.0 Aktif di: http://localhost:${PORT}`);
+    console.log(`=================================================`);
+});
