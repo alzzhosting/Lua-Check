@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMP-TOOLS VERNOZ v3.0</title>
+    <title>SAMP-TOOLS VERNOZ</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -106,14 +106,17 @@
                 <button onclick="selectTool('weapon')" id="nav-weapon" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-gun text-lg"></i> 6. Weapon & Damage Calc
                 </button>
+                <button onclick="selectTool('client')" id="nav-client" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                    <i class="fa-brands fa-android text-lg text-emerald-400"></i> 7. Client Android
+                </button>
                 <button onclick="selectTool('credit')" id="nav-credit" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
-                    <i class="fa-solid fa-circle-info text-lg"></i> 7. Credit & Info
+                    <i class="fa-solid fa-circle-info text-lg"></i> 8. Credit & Info
                 </button>
             </nav>
         </div>
 
         <div class="text-xs text-slate-500 text-center border-t border-slate-800 pt-4">
-            SAMP-TOOLS VERNOZ &bull; v3.0
+            SAMP-TOOLS VERNOZ &bull; v4.0
         </div>
     </aside>
 
@@ -136,7 +139,7 @@
             </div>
 
             <span class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
-                <i class="fa-solid fa-code-commit text-cyan-400 mr-1"></i> v3.0
+                <i class="fa-solid fa-code-commit text-cyan-400 mr-1"></i> v4.0
             </span>
         </header>
 
@@ -312,7 +315,6 @@
                     </div>
                 </div>
 
-                <!-- Canvas Preview -->
                 <div class="lg:col-span-7 flex flex-col items-center">
                     <span class="block text-xs font-bold uppercase text-slate-400 mb-2 w-full">Hasil Preview SSRP</span>
                     <div class="w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 p-2 flex justify-center items-center">
@@ -335,25 +337,41 @@
                     <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-car text-cyan-400"></i> Vehicle & Skin ID Visual Database
                     </h2>
-                    <p class="text-slate-400 text-xs sm:text-sm">Pencarian cepat ID Kendaraan & Skin Karakter GTA SA-MP.</p>
+                    <p class="text-slate-400 text-xs sm:text-sm">Database lengkap 212 Kendaraan (ID 400–611) & Skin Karakter GTA SA-MP. Klik kartu untuk menyalin ID!</p>
                 </div>
 
-                <!-- Toggle Filter Vehicle / Skin -->
-                <div class="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs font-bold">
-                    <button id="btn-tab-veh" onclick="switchVehSkinTab('veh')" class="px-4 py-2 rounded-xl bg-cyan-500 text-black shadow-md transition">Kendaraan (Vehicle)</button>
-                    <button id="btn-tab-skin" onclick="switchVehSkinTab('skin')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition">Skin Player</button>
+                <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 text-xs font-bold shadow-inner">
+                    <button id="btn-tab-veh" onclick="switchVehSkinTab('veh')" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-black shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-car-side"></i> Kendaraan (212)
+                    </button>
+                    <button id="btn-tab-skin" onclick="switchVehSkinTab('skin')" class="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-user-ninja"></i> Skin Character
+                    </button>
                 </div>
             </div>
 
-            <!-- Search Input -->
-            <div class="relative mb-6">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-sm"></i>
-                <input type="text" id="vehskin-search" oninput="filterVehSkinData()" placeholder="Cari berdasarkan ID atau Nama (contoh: 411, Infernus, CJ, Ballas)..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-4 py-3 text-white text-xs sm:text-sm font-mono focus:outline-none focus:border-cyan-500">
+            <div class="space-y-3 mb-6">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                    <input type="text" id="vehskin-search" oninput="filterVehSkinData()" placeholder="Cari ID atau Nama (contoh: 411, Infernus, Sultan, NRG-500, Police)..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-12 py-3 text-white text-xs sm:text-sm font-mono focus:outline-none focus:border-cyan-500 shadow-inner">
+                    <span id="vehskin-counter" class="absolute right-4 top-3.5 text-[10px] font-mono text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20">0 Data</span>
+                </div>
+
+                <div id="veh-category-pills" class="flex items-center gap-1.5 overflow-x-auto pb-2 text-[11px] font-semibold">
+                    <button onclick="setVehCategory('ALL')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 whitespace-nowrap">Semua Kategori</button>
+                    <button onclick="setVehCategory('Sports')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Sports</button>
+                    <button onclick="setVehCategory('Saloon')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Saloon / Sedan</button>
+                    <button onclick="setVehCategory('Motorbike')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Motorbike</button>
+                    <button onclick="setVehCategory('Off-Road')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Off-Road</button>
+                    <button onclick="setVehCategory('Public Service')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Police & Service</button>
+                    <button onclick="setVehCategory('Industrial')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Industrial</button>
+                    <button onclick="setVehCategory('Helicopter')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Helicopter & Plane</button>
+                    <button onclick="setVehCategory('Boat')" class="veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap">Boat</button>
+                </div>
             </div>
 
-            <!-- Grid Items Container -->
-            <div id="vehskin-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto pr-1">
-                <!-- Content generated via JS -->
+            <div id="vehskin-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 max-h-[520px] overflow-y-auto pr-1">
+                <!-- Data Generated via JS -->
             </div>
         </div>
 
@@ -366,7 +384,6 @@
                 <p class="text-slate-400 text-xs sm:text-sm">Cari nama library & aksi animasi untuk diterapkan di fungsi Moonloader / Monetloader Lua.</p>
             </div>
 
-            <!-- Search Bar -->
             <div class="relative mb-6">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-sm"></i>
                 <input type="text" id="anim-search" oninput="filterAnimData()" placeholder="Cari nama library atau animasi (contoh: CRACK, PED, dance, handsup)..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-4 py-3 text-white text-xs sm:text-sm font-mono focus:outline-none focus:border-amber-500">
@@ -387,7 +404,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Calculator Panel -->
                 <div class="lg:col-span-5 p-5 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
                     <span class="block text-xs font-bold text-emerald-400 uppercase">Kalkulator Simulasi Damage</span>
 
@@ -429,7 +445,6 @@
                         </div>
                     </div>
 
-                    <!-- Display Result -->
                     <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-2 text-xs font-mono">
                         <div class="flex justify-between">
                             <span class="text-slate-400">Total Damage Terkena:</span>
@@ -446,7 +461,6 @@
                     </div>
                 </div>
 
-                <!-- Weapon Database Table -->
                 <div class="lg:col-span-7">
                     <span class="block text-xs font-bold text-slate-400 uppercase mb-3">Database Senjata SA-MP Standar</span>
                     <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
@@ -475,7 +489,25 @@
             </div>
         </div>
 
-        <!-- TOOL 7: TAB CREDIT -->
+        <!-- TOOL 7: TAB DOWNLOAD CLIENT SA-MP ANDROID (NEW!) -->
+        <div id="tool-client" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
+            <div class="mb-6">
+                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-brands fa-android text-emerald-400 text-2xl"></i> Download Client SA-MP Android
+                </h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Pilih dan unduh Client SA-MP Android favoritmu untuk pengalaman bermain GTA Roleplay terbaik.</p>
+            </div>
+
+            <!-- Client Cards Container (Generated via JS API) -->
+            <div id="client-cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="col-span-full text-center text-slate-500 py-8 text-xs font-mono">
+                    <i class="fa-solid fa-spinner animate-spin text-emerald-400 text-lg mb-2"></i>
+                    <div>Memuat daftar Client Android...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOOL 8: TAB CREDIT -->
         <div id="tool-credit" class="hidden glass-panel rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl">
             <div class="text-center max-w-2xl mx-auto space-y-6">
                 <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-xl shadow-cyan-500/20">
@@ -484,11 +516,11 @@
 
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-white">SAMP-TOOLS VERNOZ</h2>
-                    <p class="text-cyan-400 font-mono text-xs sm:text-sm mt-1">Versi 3.0 &bull; Utility Suite Komunitas SA-MP Indonesia</p>
+                    <p class="text-cyan-400 font-mono text-xs sm:text-sm mt-1">Versi 4.0 &bull; Utility Suite Komunitas SA-MP Indonesia</p>
                 </div>
 
                 <p class="text-slate-300 text-xs sm:text-sm leading-relaxed bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
-                    Aplikasi web ini dikembangkan khusus untuk mempermudah para *scripter* dan *player* GTA SA-MP dalam memvalidasi keamanan kode Lua, mengamankan script (*Obfuscator*), membuat *screenshot* Roleplay (SSRP), serta mencari ID kendaraan, skin, animasi, dan damage senjata.
+                    Aplikasi web ini dikembangkan khusus untuk mempermudah para *scripter* dan *player* GTA SA-MP dalam memvalidasi keamanan kode Lua, mengamankan script (*Obfuscator*), membuat *screenshot* Roleplay (SSRP), mencari ID kendaraan, skin, animasi, damage senjata, serta mengunduh client Android.
                 </p>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
@@ -529,26 +561,132 @@
         let ssrpImage = null;
         let ssrpLines = [];
         let currentVehSkinTab = 'veh';
+        let selectedVehCategory = 'ALL';
 
-        // DATABASE KENDARAAN & SKIN
+        // DATABASE LENGKAP 212 KENDARAAN SA-MP (ID 400 - 611)
         const vehData = [
-            { id: 411, name: 'Infernus', cat: 'Sports' },
-            { id: 522, name: 'NRG-500', cat: 'Motorbike' },
-            { id: 560, name: 'Sultan', cat: 'Saloon' },
-            { id: 415, name: 'Cheetah', cat: 'Sports' },
-            { id: 541, name: 'Bullet', cat: 'Sports' },
-            { id: 562, name: 'Elegy', cat: 'Saloon/Drift' },
-            { id: 596, name: 'Police Car (LSPD)', cat: 'Public Service' },
-            { id: 487, name: 'Maverick', cat: 'Helicopter' }
+            { id: 400, name: 'Landstalker', cat: 'Off-Road' }, { id: 401, name: 'Bravura', cat: 'Saloon' },
+            { id: 402, name: 'Buffalo', cat: 'Sports' }, { id: 403, name: 'Linerunner', cat: 'Industrial' },
+            { id: 404, name: 'Perennial', cat: 'Station' }, { id: 405, name: 'Sentinel', cat: 'Saloon' },
+            { id: 406, name: 'Dump', cat: 'Industrial' }, { id: 407, name: 'Firetruck', cat: 'Public Service' },
+            { id: 408, name: 'Trashmaster', cat: 'Industrial' }, { id: 409, name: 'Stretch', cat: 'Unique' },
+            { id: 410, name: 'Manana', cat: 'Saloon' }, { id: 411, name: 'Infernus', cat: 'Sports' },
+            { id: 412, name: 'Voodoo', cat: 'Lowrider' }, { id: 413, name: 'Pony', cat: 'Industrial' },
+            { id: 414, name: 'Mule', cat: 'Industrial' }, { id: 415, name: 'Cheetah', cat: 'Sports' },
+            { id: 416, name: 'Ambulance', cat: 'Public Service' }, { id: 417, name: 'Leviathan', cat: 'Helicopter' },
+            { id: 418, name: 'Moonbeam', cat: 'Station' }, { id: 419, name: 'Esperanto', cat: 'Saloon' },
+            { id: 420, name: 'Taxi', cat: 'Public Service' }, { id: 421, name: 'Washington', cat: 'Saloon' },
+            { id: 422, name: 'Bobcat', cat: 'Industrial' }, { id: 423, name: 'Mr Whoopee', cat: 'Unique' },
+            { id: 424, name: 'BF Injection', cat: 'Off-Road' }, { id: 425, name: 'Hunter', cat: 'Helicopter' },
+            { id: 426, name: 'Premier', cat: 'Saloon' }, { id: 427, name: 'Enforcer', cat: 'Public Service' },
+            { id: 428, name: 'Securicar', cat: 'Industrial' }, { id: 429, name: 'Banshee', cat: 'Sports' },
+            { id: 430, name: 'Predator', cat: 'Boat' }, { id: 431, name: 'Bus', cat: 'Public Service' },
+            { id: 432, name: 'Rhino', cat: 'Public Service' }, { id: 433, name: 'Barracks', cat: 'Public Service' },
+            { id: 434, name: 'Hotknife', cat: 'Unique' }, { id: 435, name: 'Article Trailer 1', cat: 'Trailer' },
+            { id: 436, name: 'Previon', cat: 'Saloon' }, { id: 437, name: 'Coach', cat: 'Public Service' },
+            { id: 438, name: 'Cabbie', cat: 'Public Service' }, { id: 439, name: 'Stallion', cat: 'Convertible' },
+            { id: 440, name: 'Rumpo', cat: 'Industrial' }, { id: 441, name: 'RC Bandit', cat: 'RC' },
+            { id: 442, name: 'Romero', cat: 'Unique' }, { id: 443, name: 'Packer', cat: 'Industrial' },
+            { id: 444, name: 'Monster', cat: 'Off-Road' }, { id: 445, name: 'Admiral', cat: 'Saloon' },
+            { id: 446, name: 'Squalo', cat: 'Boat' }, { id: 447, name: 'Seasparrow', cat: 'Helicopter' },
+            { id: 448, name: 'Pizzaboy', cat: 'Motorbike' }, { id: 449, name: 'Tram', cat: 'Unique' },
+            { id: 450, name: 'Article Trailer 2', cat: 'Trailer' }, { id: 451, name: 'Turismo', cat: 'Sports' },
+            { id: 452, name: 'Speeder', cat: 'Boat' }, { id: 453, name: 'Reefer', cat: 'Boat' },
+            { id: 454, name: 'Tropic', cat: 'Boat' }, { id: 455, name: 'Flatbed', cat: 'Industrial' },
+            { id: 456, name: 'Yankee', cat: 'Industrial' }, { id: 457, name: 'Caddy', cat: 'Unique' },
+            { id: 458, name: 'Solair', cat: 'Station' }, { id: 459, name: 'Topfun Van', cat: 'Industrial' },
+            { id: 460, name: 'Skimmer', cat: 'Airplane' }, { id: 461, name: 'PCJ-600', cat: 'Motorbike' },
+            { id: 462, name: 'Faggio', cat: 'Motorbike' }, { id: 463, name: 'Freeway', cat: 'Motorbike' },
+            { id: 464, name: 'RC Baron', cat: 'RC' }, { id: 465, name: 'RC Raider', cat: 'RC' },
+            { id: 466, name: 'Glendale', cat: 'Saloon' }, { id: 467, name: 'Oceanic', cat: 'Saloon' },
+            { id: 468, name: 'Sanchez', cat: 'Motorbike' }, { id: 469, name: 'Sparrow', cat: 'Helicopter' },
+            { id: 470, name: 'Patriot', cat: 'Off-Road' }, { id: 471, name: 'Quad', cat: 'Off-Road' },
+            { id: 472, name: 'Coastguard', cat: 'Boat' }, { id: 473, name: 'Dinghy', cat: 'Boat' },
+            { id: 474, name: 'Hermes', cat: 'Saloon' }, { id: 475, name: 'Sabre', cat: 'Sports' },
+            { id: 476, name: 'Rustler', cat: 'Airplane' }, { id: 477, name: 'ZR-350', cat: 'Sports' },
+            { id: 478, name: 'Walton', cat: 'Industrial' }, { id: 479, name: 'Regina', cat: 'Station' },
+            { id: 480, name: 'Comet', cat: 'Sports' }, { id: 481, name: 'BMX', cat: 'Bicycle' },
+            { id: 482, name: 'Burrito', cat: 'Industrial' }, { id: 483, name: 'Camper', cat: 'Unique' },
+            { id: 484, name: 'Marquis', cat: 'Boat' }, { id: 485, name: 'Baggage', cat: 'Unique' },
+            { id: 486, name: 'Dozer', cat: 'Industrial' }, { id: 487, name: 'Maverick', cat: 'Helicopter' },
+            { id: 488, name: 'SAN Maverick', cat: 'Helicopter' }, { id: 489, name: 'Rancher', cat: 'Off-Road' },
+            { id: 490, name: 'FBI Rancher', cat: 'Public Service' }, { id: 491, name: 'Virgo', cat: 'Saloon' },
+            { id: 492, name: 'Greenwood', cat: 'Saloon' }, { id: 493, name: 'Jetmax', cat: 'Boat' },
+            { id: 494, name: 'Hotring', cat: 'Sports' }, { id: 495, name: 'Sandking', cat: 'Off-Road' },
+            { id: 496, name: 'Blistac', cat: 'Sports' }, { id: 497, name: 'Police Maverick', cat: 'Helicopter' },
+            { id: 498, name: 'Boxville', cat: 'Industrial' }, { id: 499, name: 'Benson', cat: 'Industrial' },
+            { id: 500, name: 'Mesa', cat: 'Off-Road' }, { id: 501, name: 'RC Goblin', cat: 'RC' },
+            { id: 502, name: 'Hotring A', cat: 'Sports' }, { id: 503, name: 'Hotring B', cat: 'Sports' },
+            { id: 504, name: 'Bloodring Banger', cat: 'Unique' }, { id: 505, name: 'Rancher Lure', cat: 'Off-Road' },
+            { id: 506, name: 'Super GT', cat: 'Sports' }, { id: 507, name: 'Elegant', cat: 'Saloon' },
+            { id: 508, name: 'Journey', cat: 'Unique' }, { id: 509, name: 'Bike', cat: 'Bicycle' },
+            { id: 510, name: 'Mountain Bike', cat: 'Bicycle' }, { id: 511, name: 'Beagle', cat: 'Airplane' },
+            { id: 512, name: 'Cropduster', cat: 'Airplane' }, { id: 513, name: 'Stunt', cat: 'Airplane' },
+            { id: 514, name: 'Tanker', cat: 'Industrial' }, { id: 515, name: 'Roadtrain', cat: 'Industrial' },
+            { id: 516, name: 'Nebula', cat: 'Saloon' }, { id: 517, name: 'Majestic', cat: 'Saloon' },
+            { id: 518, name: 'Buccaneer', cat: 'Saloon' }, { id: 519, name: 'Shamal', cat: 'Airplane' },
+            { id: 520, name: 'Hydra', cat: 'Airplane' }, { id: 521, name: 'FCR-900', cat: 'Motorbike' },
+            { id: 522, name: 'NRG-500', cat: 'Motorbike' }, { id: 523, name: 'HPV1000', cat: 'Public Service' },
+            { id: 524, name: 'Cement Truck', cat: 'Industrial' }, { id: 525, name: 'Tow Truck', cat: 'Industrial' },
+            { id: 526, name: 'Fortune', cat: 'Saloon' }, { id: 527, name: 'Cadrona', cat: 'Saloon' },
+            { id: 528, name: 'FBI Truck', cat: 'Public Service' }, { id: 529, name: 'Willard', cat: 'Saloon' },
+            { id: 530, name: 'Forklift', cat: 'Industrial' }, { id: 531, name: 'Tractor', cat: 'Industrial' },
+            { id: 532, name: 'Combine', cat: 'Unique' }, { id: 533, name: 'Feltzer', cat: 'Convertible' },
+            { id: 534, name: 'Remington', cat: 'Lowrider' }, { id: 535, name: 'Slamvan', cat: 'Lowrider' },
+            { id: 536, name: 'Blade', cat: 'Lowrider' }, { id: 537, name: 'Freight Train', cat: 'Unique' },
+            { id: 538, name: 'Brown Streak', cat: 'Unique' }, { id: 539, name: 'Vortex', cat: 'Unique' },
+            { id: 540, name: 'Vincent', cat: 'Saloon' }, { id: 541, name: 'Bullet', cat: 'Sports' },
+            { id: 542, name: 'Clover', cat: 'Saloon' }, { id: 543, name: 'Sadler', cat: 'Industrial' },
+            { id: 544, name: 'Firetruck LA', cat: 'Public Service' }, { id: 545, name: 'Hustler', cat: 'Unique' },
+            { id: 546, name: 'Intruder', cat: 'Saloon' }, { id: 547, name: 'Primo', cat: 'Saloon' },
+            { id: 548, name: 'Cargobob', cat: 'Helicopter' }, { id: 549, name: 'Tampa', cat: 'Saloon' },
+            { id: 550, name: 'Sunrise', cat: 'Saloon' }, { id: 551, name: 'Merit', cat: 'Saloon' },
+            { id: 552, name: 'Utility Van', cat: 'Industrial' }, { id: 553, name: 'Nevada', cat: 'Airplane' },
+            { id: 554, name: 'Yosemite', cat: 'Industrial' }, { id: 555, name: 'Windsor', cat: 'Convertible' },
+            { id: 556, name: 'Monster A', cat: 'Off-Road' }, { id: 557, name: 'Monster B', cat: 'Off-Road' },
+            { id: 558, name: 'Uranus', cat: 'Sports' }, { id: 559, name: 'Jester', cat: 'Sports' },
+            { id: 560, name: 'Sultan', cat: 'Saloon' }, { id: 561, name: 'Stratum', cat: 'Station' },
+            { id: 562, name: 'Elegy', cat: 'Saloon' }, { id: 563, name: 'Raindance', cat: 'Helicopter' },
+            { id: 564, name: 'RC Tiger', cat: 'RC' }, { id: 565, name: 'Flash', cat: 'Sports' },
+            { id: 566, name: 'Tahoma', cat: 'Lowrider' }, { id: 567, name: 'Savanna', cat: 'Lowrider' },
+            { id: 568, name: 'Bandito', cat: 'Off-Road' }, { id: 569, name: 'Freight Trailer', cat: 'Trailer' },
+            { id: 570, name: 'Streak Trailer', cat: 'Trailer' }, { id: 571, name: 'Kart', cat: 'Unique' },
+            { id: 572, name: 'Mower', cat: 'Unique' }, { id: 573, name: 'Dune', cat: 'Industrial' },
+            { id: 574, name: 'Sweeper', cat: 'Unique' }, { id: 575, name: 'Broadway', cat: 'Lowrider' },
+            { id: 576, name: 'Tornado', cat: 'Lowrider' }, { id: 577, name: 'AT-400', cat: 'Airplane' },
+            { id: 578, name: 'DFT-30', cat: 'Industrial' }, { id: 579, name: 'Huntley', cat: 'Off-Road' },
+            { id: 580, name: 'Stafford', cat: 'Saloon' }, { id: 581, name: 'BF-400', cat: 'Motorbike' },
+            { id: 582, name: 'Newsvan', cat: 'Industrial' }, { id: 583, name: 'Tug', cat: 'Unique' },
+            { id: 584, name: 'Petrol Trailer', cat: 'Trailer' }, { id: 585, name: 'Emperor', cat: 'Saloon' },
+            { id: 586, name: 'Wayfarer', cat: 'Motorbike' }, { id: 587, name: 'Euros', cat: 'Sports' },
+            { id: 588, name: 'Hotdog', cat: 'Unique' }, { id: 589, name: 'Club', cat: 'Sports' },
+            { id: 590, name: 'Freight Box', cat: 'Trailer' }, { id: 591, name: 'Article Trailer 3', cat: 'Trailer' },
+            { id: 592, name: 'Andromada', cat: 'Airplane' }, { id: 593, name: 'Dodo', cat: 'Airplane' },
+            { id: 594, name: 'RC Cam', cat: 'RC' }, { id: 595, name: 'Launch', cat: 'Boat' },
+            { id: 596, name: 'Police Car LSPD', cat: 'Public Service' }, { id: 597, name: 'Police Car SFPD', cat: 'Public Service' },
+            { id: 598, name: 'Police Car LVPD', cat: 'Public Service' }, { id: 599, name: 'Police Ranger', cat: 'Public Service' },
+            { id: 600, name: 'Picador', cat: 'Industrial' }, { id: 601, name: 'SWAT Van', cat: 'Public Service' },
+            { id: 602, name: 'Alpha', cat: 'Sports' }, { id: 603, name: 'Phoenix', cat: 'Sports' },
+            { id: 604, name: 'Glendale Shit', cat: 'Saloon' }, { id: 605, name: 'Sadler Shit', cat: 'Industrial' },
+            { id: 606, name: 'Luggage Trailer A', cat: 'Trailer' }, { id: 607, name: 'Luggage Trailer B', cat: 'Trailer' },
+            { id: 608, name: 'Stairs Trailer', cat: 'Trailer' }, { id: 609, name: 'Boxville LA', cat: 'Industrial' },
+            { id: 610, name: 'Farm Trailer', cat: 'Trailer' }, { id: 611, name: 'Utility Trailer', cat: 'Trailer' }
         ];
 
+        // DATABASE SKIN PLAYER
         const skinData = [
             { id: 0, name: 'CJ (Carl Johnson)', cat: 'Main Character' },
             { id: 105, name: 'Fam1 (Grove Street)', cat: 'Gang' },
             { id: 102, name: 'Balla1 (Ballas)', cat: 'Gang' },
+            { id: 108, name: 'Vla1 (Vagos)', cat: 'Gang' },
             { id: 280, name: 'Lapd1 (LSPD Officer)', cat: 'Police' },
+            { id: 281, name: 'Sfpd1 (SFPD Officer)', cat: 'Police' },
+            { id: 282, name: 'Lvpd1 (LVPD Officer)', cat: 'Police' },
+            { id: 286, name: 'Fbi (FBI Agent)', cat: 'Federal' },
+            { id: 287, name: 'Army (National Guard)', cat: 'Military' },
             { id: 299, name: 'Claude Speed', cat: 'Special' },
-            { id: 270, name: 'Sweet', cat: 'Main Character' }
+            { id: 270, name: 'Sweet', cat: 'Main Character' },
+            { id: 271, name: 'Ryder', cat: 'Main Character' }
         ];
 
         // DATABASE ANIMASI
@@ -568,6 +706,7 @@
             renderVehSkinGrid();
             renderAnimList();
             calculateDamage();
+            loadAndroidClients();
         });
 
         function toggleSidebar() {
@@ -584,7 +723,7 @@
         }
 
         function selectTool(toolName) {
-            const tools = ['check', 'obfuscate', 'ssrp', 'vehskin', 'anim', 'weapon', 'credit'];
+            const tools = ['check', 'obfuscate', 'ssrp', 'vehskin', 'anim', 'weapon', 'client', 'credit'];
             tools.forEach(t => {
                 document.getElementById(`tool-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = "w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white";
@@ -596,19 +735,70 @@
             toggleSidebar();
         }
 
+        // TOOL CLIENT ANDROID FETCH LOGIC
+        async function loadAndroidClients() {
+            const container = document.getElementById('client-cards-container');
+            try {
+                const response = await fetch('/api/clients');
+                const data = await response.json();
+
+                if (data.success && data.clients.length > 0) {
+                    container.innerHTML = data.clients.map(client => `
+                        <div class="p-5 bg-slate-950 rounded-2xl border border-slate-800/80 hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-4 shadow-xl">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                                            <i class="fa-solid ${client.icon} text-base"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-bold text-white">${client.name}</h3>
+                                            <span class="text-[10px] font-mono text-slate-500">${client.version}</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg border ${client.badgeColor}">${client.badge}</span>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-relaxed">${client.desc}</p>
+                            </div>
+
+                            <a href="${client.downloadUrl}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> Download ${client.name}
+                            </a>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<div class="col-span-full text-center text-slate-500 py-8 text-xs">Belum ada daftar client yang dikonfigurasi.</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="col-span-full text-center text-red-400 py-8 text-xs">✕ Gagal memuat daftar Client Android dari server.</div>`;
+            }
+        }
+
         // TOOL VEHICLE & SKIN LOGIC
         function switchVehSkinTab(tab) {
             currentVehSkinTab = tab;
             const btnVeh = document.getElementById('btn-tab-veh');
             const btnSkin = document.getElementById('btn-tab-skin');
+            const catPills = document.getElementById('veh-category-pills');
 
             if (tab === 'veh') {
-                btnVeh.className = "px-4 py-2 rounded-xl bg-cyan-500 text-black shadow-md transition";
-                btnSkin.className = "px-4 py-2 rounded-xl text-slate-400 hover:text-white transition";
+                btnVeh.className = "px-5 py-2.5 rounded-xl bg-cyan-500 text-black shadow-md transition-all flex items-center gap-2";
+                btnSkin.className = "px-5 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-2";
+                catPills.classList.remove('hidden');
             } else {
-                btnSkin.className = "px-4 py-2 rounded-xl bg-cyan-500 text-black shadow-md transition";
-                btnVeh.className = "px-4 py-2 rounded-xl text-slate-400 hover:text-white transition";
+                btnSkin.className = "px-5 py-2.5 rounded-xl bg-cyan-500 text-black shadow-md transition-all flex items-center gap-2";
+                btnVeh.className = "px-5 py-2.5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-2";
+                catPills.classList.add('hidden');
             }
+            renderVehSkinGrid();
+        }
+
+        function setVehCategory(cat) {
+            selectedVehCategory = cat;
+            document.querySelectorAll('.veh-cat-btn').forEach(btn => {
+                btn.className = "veh-cat-btn px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap";
+            });
+            event.target.className = "veh-cat-btn px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 whitespace-nowrap";
             renderVehSkinGrid();
         }
 
@@ -621,22 +811,43 @@
             const grid = document.getElementById('vehskin-grid');
             const list = currentVehSkinTab === 'veh' ? vehData : skinData;
 
-            const filtered = list.filter(item => 
-                item.id.toString().includes(query) || item.name.toLowerCase().includes(query) || item.cat.toLowerCase().includes(query)
-            );
+            const filtered = list.filter(item => {
+                const matchesSearch = item.id.toString().includes(query) || item.name.toLowerCase().includes(query) || item.cat.toLowerCase().includes(query);
+                const matchesCategory = (currentVehSkinTab === 'skin' || selectedVehCategory === 'ALL' || item.cat.toLowerCase().includes(selectedVehCategory.toLowerCase()));
+                return matchesSearch && matchesCategory;
+            });
+
+            document.getElementById('vehskin-counter').innerText = `${filtered.length} Data`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center text-slate-500 py-8 text-xs">Tidak ada data ditemukan.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center text-slate-500 py-12 text-xs font-mono">✕ Tidak ada data ditemukan untuk "${query}".</div>`;
                 return;
             }
 
-            grid.innerHTML = filtered.map(item => `
-                <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-2">
-                    <div class="text-xs font-mono font-bold text-cyan-400">ID ${item.id}</div>
-                    <div class="text-sm font-bold text-white">${item.name}</div>
-                    <div class="text-[10px] text-slate-500 uppercase">${item.cat}</div>
-                </div>
-            `).join('');
+            grid.innerHTML = filtered.map(item => {
+                let badgeColor = 'bg-slate-800 text-slate-300';
+                if (item.cat === 'Sports') badgeColor = 'bg-pink-500/10 text-pink-400 border-pink-500/20';
+                else if (item.cat === 'Public Service' || item.cat === 'Police') badgeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                else if (item.cat === 'Motorbike') badgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                else if (item.cat === 'Helicopter' || item.cat === 'Airplane') badgeColor = 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+                else if (item.cat === 'Off-Road') badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+
+                return `
+                    <div onclick="copyToClipboard('${item.id}', 'ID ${item.id} (${item.name})')" class="p-3.5 bg-slate-950/80 hover:bg-slate-900 rounded-2xl border border-slate-800/80 hover:border-cyan-500/50 transition-all cursor-pointer group flex flex-col justify-between shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+                            <span class="text-xs font-mono font-bold text-cyan-400 group-hover:text-cyan-300">ID ${item.id}</span>
+                            <i class="fa-regular fa-copy text-[10px] text-slate-600 group-hover:text-cyan-400 transition"></i>
+                        </div>
+                        <div class="text-xs font-bold text-white group-hover:text-cyan-200 transition line-clamp-1 mb-2">${item.name}</div>
+                        <div class="text-[9px] font-mono px-2 py-0.5 rounded-lg border text-center font-semibold truncate ${badgeColor}">${item.cat}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text);
+            alert(`✓ Berhasil disalin ke clipboard:\n${label}`);
         }
 
         // TOOL ANIMATION LOGIC
@@ -691,7 +902,7 @@
             let sisaHp = hp;
 
             if (sisaArm < 0) {
-                sisaHp += sisaArm; // Tambahkan sisa damage berlebih ke HP
+                sisaHp += sisaArm;
                 sisaArm = 0;
             }
 
