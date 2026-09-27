@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SA-MP Lua Studio | Validator & Obfuscator</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        samp: {
+                            bg: '#090d16',
+                            card: '#111827',
+                            accent: '#06b6d4',
+                            purple: '#6366f1',
+                            danger: '#ef4444',
+                            warning: '#f59e0b',
+                            success: '#10b981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070a12;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1322;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glow-cyan:hover {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+        }
+
+        .glow-indigo:hover {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-200 min-h-screen flex flex-col justify-between p-3 sm:p-6 md:p-8 selection:bg-cyan-500 selection:text-black">
+
+    <!-- Container Utama -->
+    <div class="max-w-6xl mx-auto w-full">
+        
+        <!-- Header Studio -->
+        <header class="text-center mb-6 sm:mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-3 tracking-wide uppercase">
+                <i class="fa-solid fa-gamepad text-sm"></i> GTA SA-MP Scripting Tools
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
+                SA-MP <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-500">Lua Studio</span>
+            </h1>
+            <p class="text-slate-400 mt-2 text-xs sm:text-sm max-w-xl mx-auto">
+                Validator Sintaksis, Detector Stealer / Keylogger & Obfuscator khusus Moonloader (PC) & Monetloader (Android).
+            </p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center mb-6">
+            <div class="bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 flex gap-2 w-full max-w-md shadow-xl">
+                <button id="btn-tab-check" onclick="switchTab('check')" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25">
+                    <i class="fa-solid fa-shield-halved"></i> Cek & Scan
+                </button>
+                <button id="btn-tab-obfuscate" onclick="switchTab('obfuscate')" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-lock"></i> Obfuscator
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: CEK SYNTAX & KEAMANAN LUA -->
+        <div id="tab-check" class="glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-code text-cyan-400"></i> Validator & Security Scanner
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Periksa error kodingan dan deteksi fungsi berbahaya / stealer.</p>
+                </div>
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">
+                    <i class="fa-brands fa-lua text-blue-400"></i> Lua 5.1
+                </span>
+            </div>
+            
+            <!-- Editor Textarea -->
+            <div class="relative rounded-2xl overflow-hidden border border-slate-700/70 focus-within:border-cyan-500 transition-colors bg-slate-950/80">
+                <textarea id="lua-check-input" oninput="updateStats('check')" rows="12" class="w-full bg-transparent p-4 text-cyan-100 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Tempelkan kode Lua GTA SA-MP kamu di sini&#10;function main()&#10;    if not isSampLoaded() or not isSampfuncsLoaded() then return end&#10;    while not isSampAvailable() do wait(100) end&#10;    sampAddChatMessage('{00FF00}[Studio]{FFFFFF} Script berhasil dimuat!', -1)&#10;end"></textarea>
+                
+                <!-- Footer Info Area -->
+                <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
+                    <span id="check-stats"><i class="fa-regular fa-file-code mr-1"></i> 0 Baris | 0 Karakter</span>
+                    <button onclick="document.getElementById('lua-check-input').value=''; updateStats('check');" class="hover:text-red-400 transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Bersihkan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-5 flex justify-end">
+                <button onclick="checkLua()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-cyan-500/25 glow-cyan flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-code"></i> Periksa Kode Sekarang
+                </button>
+            </div>
+
+            <!-- Area Hasil Analisis -->
+            <div id="check-result" class="hidden mt-6 space-y-3"></div>
+        </div>
+
+        <!-- TAB 2: OBFUSCATOR LUA -->
+        <div id="tab-obfuscate" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
+            <div class="mb-4">
+                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-indigo-400"></i> Lua Bytecode Encrypter
+                </h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Enkripsi kode Lua kamu agar aman dari *decompile* atau pencurian karya.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Input Source -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-code text-cyan-400"></i> Kode Asli (Source)
+                    </label>
+                    <div class="rounded-2xl overflow-hidden border border-slate-700/70 focus-within:border-indigo-500 transition-colors bg-slate-950/80">
+                        <textarea id="lua-obf-input" oninput="updateStats('obf')" rows="12" class="w-full bg-transparent p-4 text-slate-200 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Masukkan kode asli di sini&#10;print('Hello SA-MP World')"></textarea>
+                        <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 text-xs text-slate-400 font-mono">
+                            <span id="obf-stats"><i class="fa-regular fa-file-code mr-1"></i> 0 Baris</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Protected -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-shield text-emerald-400"></i> Hasil Obfuscated (Protected)
+                    </label>
+                    <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+                        <textarea id="lua-obf-output" readonly rows="12" class="w-full bg-transparent p-4 text-emerald-400 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-700 leading-relaxed" placeholder="Hasil terenkripsi akan muncul otomatis di sini..."></textarea>
+                        <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
+                            <span>Status: Ready</span>
+                            <span class="text-emerald-400"><i class="fa-solid fa-check-double mr-1"></i> Moonloader / Monetloader</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="obf-status" class="hidden mt-4"></div>
+
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <button onclick="obfuscateLua()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25 glow-indigo flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Encrypt Sekarang
+                </button>
+                <button onclick="copyOutput()" class="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-regular fa-copy"></i> Salin Hasil Kode
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-slate-500 text-xs mt-8 sm:mt-12 py-4">
+        <p>GTA SA-MP Lua Studio &copy; 2026 — Dibuat untuk Komunitas Scripting SA-MP Indonesia</p>
+    </footer>
+
+    <!-- Client Logic Script -->
+    <script>
+        function switchTab(tab) {
+            const tabCheck = document.getElementById('tab-check');
+            const tabObf = document.getElementById('tab-obfuscate');
+            const btnCheck = document.getElementById('btn-tab-check');
+            const btnObf = document.getElementById('btn-tab-obfuscate');
+
+            if (tab === 'check') {
+                tabCheck.classList.remove('hidden');
+                tabObf.classList.add('hidden');
+                btnCheck.className = "flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25";
+                btnObf.className = "flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/60";
+            } else {
+                tabCheck.classList.add('hidden');
+                tabObf.classList.remove('hidden');
+                btnObf.className = "flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25";
+                btnCheck.className = "flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/60";
+            }
+        }
+
+        function updateStats(type) {
+            if (type === 'check') {
+                const val = document.getElementById('lua-check-input').value;
+                const lines = val ? val.split('\n').length : 0;
+                const chars = val.length;
+                document.getElementById('check-stats').innerHTML = `<i class="fa-regular fa-file-code mr-1"></i> ${lines} Baris | ${chars} Karakter`;
+            } else {
+                const val = document.getElementById('lua-obf-input').value;
+                const lines = val ? val.split('\n').length : 0;
+                document.getElementById('obf-stats').innerHTML = `<i class="fa-regular fa-file-code mr-1"></i> ${lines} Baris`;
+            }
+        }
+
+        async function checkLua() {
+            const code = document.getElementById('lua-check-input').value;
+            const resultBox = document.getElementById('check-result');
+
+            if (!code.trim()) {
+                resultBox.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-xl text-red-400"></i>
+                        <span>Masukkan kode Lua terlebih dahulu!</span>
+                    </div>`;
+                resultBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/check-lua', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+
+                resultBox.classList.remove('hidden');
+                let htmlOutput = '';
+
+                // 1. Status Sintaks
+                if (data.syntaxValid) {
+                    htmlOutput += `
+                        <div class="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs sm:text-sm flex items-start gap-3">
+                            <i class="fa-solid fa-circle-check text-xl text-emerald-400 mt-0.5"></i>
+                            <div>
+                                <div class="font-bold text-white text-sm">Sintaks Lua Valid!</div>
+                                <div class="opacity-90">Tidak ditemukan error struktur sintaksis pada kode Moonloader/Monetloader ini.</div>
+                            </div>
+                        </div>`;
+                } else {
+                    htmlOutput += `
+                        <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-200 text-xs sm:text-sm flex items-start gap-3 font-mono">
+                            <i class="fa-solid fa-circle-xmark text-xl text-red-400 mt-0.5"></i>
+                            <div>
+                                <div class="font-bold text-white text-sm font-sans mb-1">Error Sintaks Ditemukan:</div>
+                                <div>${data.syntaxError}</div>
+                            </div>
+                        </div>`;
+                }
+
+                // 2. Status Keamanan (Security Warnings)
+                if (data.warnings && data.warnings.length > 0) {
+                    let warningList = data.warnings.map(item => `<li class="flex items-center gap-2"><i class="fa-solid fa-chevron-right text-amber-400 text-[10px]"></i> ${item}</li>`).join('');
+                    htmlOutput += `
+                        <div class="p-4 rounded-2xl bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs sm:text-sm">
+                            <div class="font-bold text-amber-300 mb-2 flex items-center gap-2 text-sm">
+                                <i class="fa-solid fa-shield-cat text-lg text-amber-400"></i> Peringatan Potensi Bahaya / Stealer:
+                            </div>
+                            <ul class="space-y-1.5 font-mono text-xs opacity-95 bg-slate-950/60 p-3 rounded-xl border border-amber-500/20">${warningList}</ul>
+                        </div>`;
+                } else {
+                    htmlOutput += `
+                        <div class="p-4 rounded-2xl bg-blue-950/70 border border-blue-500/40 text-blue-200 text-xs sm:text-sm flex items-center gap-3">
+                            <i class="fa-solid fa-user-shield text-xl text-blue-400"></i>
+                            <div>
+                                <div class="font-bold text-white text-sm">Pemindaian Keamanan Bersih</div>
+                                <div class="opacity-90">Tidak terdeteksi pola fungsi *keylogger*, *stealer*, atau koneksi mencurigakan.</div>
+                            </div>
+                        </div>`;
+                }
+
+                resultBox.innerHTML = htmlOutput;
+            } catch (err) {
+                resultBox.classList.remove('hidden');
+                resultBox.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-wifi text-xl text-red-400"></i>
+                        <span>Gagal terhubung ke server backend Express.js.</span>
+                    </div>`;
+            }
+        }
+
+        async function obfuscateLua() {
+            const code = document.getElementById('lua-obf-input').value;
+            const outputArea = document.getElementById('lua-obf-output');
+            const statusBox = document.getElementById('obf-status');
+
+            if (!code.trim()) {
+                statusBox.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-xl text-red-400"></i>
+                        <span>Masukkan kode Lua yang ingin di-obfuscate!</span>
+                    </div>`;
+                statusBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/obfuscate-lua', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    statusBox.classList.add('hidden');
+                    outputArea.value = data.result;
+                } else {
+                    statusBox.classList.remove('hidden');
+                    statusBox.innerHTML = `
+                        <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3 font-mono">
+                            <i class="fa-solid fa-bug text-xl text-red-400"></i>
+                            <span>${data.message}</span>
+                        </div>`;
+                    outputArea.value = "";
+                }
+            } catch (err) {
+                statusBox.classList.remove('hidden');
+                statusBox.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-wifi text-xl text-red-400"></i>
+                        <span>Gagal terhubung ke server backend.</span>
+                    </div>`;
+            }
+        }
+
+        function copyOutput() {
+            const outputArea = document.getElementById('lua-obf-output');
+            if (!outputArea.value) {
+                alert('Belum ada kode terenkripsi untuk disalin!');
+                return;
+            }
+            outputArea.select();
+            navigator.clipboard.writeText(outputArea.value);
+            alert('✓ Kode Obfuscated berhasil disalin ke clipboard!');
+        }
+    </script>
+</body>
+</html>
