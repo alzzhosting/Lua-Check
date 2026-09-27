@@ -20,9 +20,9 @@ const androidClients = [
     {
         id: 'alyn',
         name: 'Client Alyn',
-        version: 'v2.0',
+        version: 'v20.7.8',
         desc: 'Client SA-MP Android dengan performa ringan, kestabilan tinggi, dan kustomisasi antarmuka khas.',
-        downloadUrl: 'https://example.com/download/client-alyn', // Ganti dengan link unduhan Alyn
+        downloadUrl: 'https://alynsampmobile.pro/', // Ganti dengan link unduhan Alyn
         badge: 'Popular',
         badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
         icon: 'fa-mobile-screen-button'
@@ -30,9 +30,9 @@ const androidClients = [
     {
         id: 'nezuko',
         name: 'Client Nezuko',
-        version: 'v1.8',
-        desc: 'Client Android dengan optimasi grafis halus, tampilan segar, dan fitur pendukung roleplay.',
-        downloadUrl: 'https://example.com/download/client-nezuko', // Ganti dengan link unduhan Nezuko
+        version: 'v1.0.1 (BETA)',
+        desc: 'Client Android dengan optimasi grafis halus, tampilan segar, dan fitur pendukung roleplay. (Support Mobilador)',
+        downloadUrl: 'https://www.mediafire.com/file/f6ci0mzgmi1hkr1/SAMP_Nezuko_1.0.1_%28BETA%29.apk/file', // Ganti dengan link unduhan Nezuko
         badge: 'Recommended',
         badgeColor: 'bg-pink-500/10 text-pink-400 border-pink-500/30',
         icon: 'fa-wand-magic-sparkles'
@@ -40,19 +40,19 @@ const androidClients = [
     {
         id: 'james',
         name: 'Client James',
-        version: 'v2.5',
+        version: 'v1.0.7',
         desc: 'Client SA-MP Android yang dirancang khusus untuk FPS tinggi, respon cepat, dan bebas lag.',
-        downloadUrl: 'https://example.com/download/client-james', // Ganti dengan link unduhan James
-        badge: 'High FPS',
+        downloadUrl: 'https://www.mediafire.com/file/48jadgil26sukeg/SAMP+Mobile_1.0.7.apk/file', // Ganti dengan link unduhan James
+        badge: 'Stable',
         badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
         icon: 'fa-bolt'
     },
     {
         id: 'thunder',
         name: 'Client Thunder',
-        version: 'v3.0',
-        desc: 'Client Android bertenaga dengan respon sentuhan tinggi dan dukungan modifikasi luas.',
-        downloadUrl: 'https://example.com/download/client-thunder', // Ganti dengan link unduhan Thunder
+        version: 'v2.1',
+        desc: 'Client Android bertenaga dengan respon sentuhan tinggi dan dukungan modifikasi luas. (Laiks PC)',
+        downloadUrl: 'https://thunder-samp.com/', // Ganti dengan link unduhan Thunder
         badge: 'Ultra Fast',
         badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
         icon: 'fa-cloud-bolt'
