@@ -60,7 +60,7 @@
             transition: transform 0.3s ease-in-out;
         }
 
-        /* Mencegah teks keluar batas card */
+        /* Mencegah teks keluar dari container */
         pre, code {
             white-space: pre-wrap !important;
             word-break: break-all !important;
@@ -115,7 +115,7 @@
     <!-- CONTAINER UTAMA -->
     <div class="max-w-6xl mx-auto w-full overflow-hidden">
         
-        <!-- BARIS TOPBAR (HAMBURGER BUTTON & TITLE) -->
+        <!-- BARIS TOPBAR -->
         <header class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
                 <button onclick="toggleSidebar()" class="p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 text-cyan-400 rounded-2xl shadow-lg transition flex items-center gap-2">
@@ -224,9 +224,9 @@
         <div id="tool-ssrp" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
             <div class="mb-6">
                 <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-camera text-purple-400"></i> SSRP Maker & Chat Roleplay Generator
+                    <i class="fa-solid fa-camera text-purple-400"></i> SSRP Maker & Auto Chat RP Generator
                 </h2>
-                <p class="text-slate-400 text-xs sm:text-sm">Unggah gambar screenshot GTA SA-MP milikmu dan tambahkan teks chat /me, /do, atau percakapan dengan mudah.</p>
+                <p class="text-slate-400 text-xs sm:text-sm">Unggah gambar screenshot GTA SA-MP milikmu dan buat teks RP otomatis tanpa ribet.</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -237,19 +237,26 @@
                         <input type="file" id="ssrp-img-input" accept="image/*" onchange="loadSSRPImage(event)" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 bg-slate-950 p-2 rounded-2xl border border-slate-800 cursor-pointer">
                     </div>
 
-                    <!-- Input Teks Baru -->
+                    <!-- Input Nama Character & Teks RP -->
                     <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
-                        <span class="block text-xs font-bold text-purple-400 uppercase">2. Tambah Baris Chat RP</span>
+                        <span class="block text-xs font-bold text-purple-400 uppercase">2. Pengaturan Teks Roleplay</span>
+                        
                         <div>
-                            <input type="text" id="ssrp-text-input" placeholder="Contoh: * Ramzyy Dzikri mengambil kunci pas dari tas." class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
+                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Nama Character / Player</label>
+                            <input type="text" id="ssrp-char-name" value="Ramzyy" placeholder="Contoh: Ramzyy" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] uppercase text-slate-400 mb-1">Teks Chat / Aksi RP</label>
+                            <input type="text" id="ssrp-text-input" placeholder="Contoh: sedang melihat orang di depan" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[10px] uppercase text-slate-400 mb-1">Tipe Preset</label>
+                                <label class="block text-[10px] uppercase text-slate-400 mb-1">Tipe Command</label>
                                 <select id="ssrp-type-select" onchange="applySSRPTypePreset()" class="w-full bg-slate-900 border border-slate-700 p-2 rounded-xl text-white text-xs font-semibold">
-                                    <option value="me">/me (Ungu)</option>
-                                    <option value="do">/do (Ungu)</option>
+                                    <option value="me">/me (Otomatis *)</option>
+                                    <option value="do">/do (Otomatis (( Nama )))</option>
                                     <option value="talk">Chat Biasa (Putih)</option>
                                 </select>
                             </div>
@@ -275,14 +282,14 @@
                             </div>
                         </div>
 
-                        <button onclick="addSSRPLine()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-plus"></i> Tambahkan Baris
+                        <button onclick="addSSRPLine()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30">
+                            <i class="fa-solid fa-plus"></i> Tambahkan Baris SSRP
                         </button>
                     </div>
 
                     <!-- Daftar Baris Teks -->
                     <div>
-                        <span class="block text-xs font-bold text-slate-400 uppercase mb-2">Daftar Baris Teks SSRP</span>
+                        <span class="block text-xs font-bold text-slate-400 uppercase mb-2">Daftar Baris Teks Terpasang</span>
                         <div id="ssrp-lines-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
                             <div class="text-xs text-slate-500 italic">Belum ada baris teks ditambahkan.</div>
                         </div>
@@ -435,7 +442,6 @@ end</pre>
                 </div>
             </div>
 
-            <!-- PERBAIKAN OVERFLOW PADA KODE OUTPUT DIALOG -->
             <div class="mt-6">
                 <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Kode Lua Moonloader Ready-to-Copy</label>
                 <div class="relative bg-slate-950 p-4 rounded-2xl border border-slate-800 font-mono text-xs text-cyan-300 overflow-x-auto">
@@ -635,14 +641,13 @@ end</pre>
             }
         }
 
-        // 3. SSRP MAKER LOGIC
+        // 3. SSRP MAKER LOGIC & AUTO-FORMATTING
         function initSSRPCanvas() {
             const canvas = document.getElementById('ssrp-canvas');
             canvas.width = 800;
             canvas.height = 450;
             renderSSRP();
 
-            // Synch color picker & hex
             document.getElementById('ssrp-color-picker').addEventListener('input', (e) => {
                 document.getElementById('ssrp-color-hex').value = e.target.value.toUpperCase();
             });
@@ -680,7 +685,6 @@ end</pre>
                     canvas.width = img.width;
                     canvas.height = img.height;
                     
-                    // Update max range Y slider
                     document.getElementById('ssrp-pos-y').max = img.height;
                     document.getElementById('ssrp-pos-x').max = img.width;
                     
@@ -691,17 +695,36 @@ end</pre>
             reader.readAsDataURL(file);
         }
 
+        // FUNGSI UTAMA OTOMATISASI PENAMBAHAN FORMAT /ME & /DO
         function addSSRPLine() {
             const textInput = document.getElementById('ssrp-text-input');
-            const text = textInput.value.trim();
-            if (!text) return;
-
+            const charNameInput = document.getElementById('ssrp-char-name');
+            const rawText = textInput.value.trim();
+            const charName = charNameInput.value.trim() || 'Character';
+            const type = document.getElementById('ssrp-type-select').value;
             const color = document.getElementById('ssrp-color-hex').value;
             const size = parseInt(document.getElementById('ssrp-font-size').value);
             const isBold = document.getElementById('ssrp-font-bold').checked;
 
-            ssrpLines.push({ text, color, size, isBold });
-            textInput.value = '';
+            if (!rawText) return;
+
+            let formattedText = rawText;
+
+            // Logika Otomatisasi Format
+            if (type === 'me') {
+                // Jika belum diawali '*', buat format: * Nama Teks
+                if (!rawText.startsWith('*')) {
+                    formattedText = `* ${charName} ${rawText}`;
+                }
+            } else if (type === 'do') {
+                // Jika belum ada '((', buat format: Teks (( Nama ))
+                if (!rawText.includes('((')) {
+                    formattedText = `${rawText} (( ${charName} ))`;
+                }
+            }
+
+            ssrpLines.push({ text: formattedText, color, size, isBold });
+            textInput.value = ''; // Bersihkan input teks saja
             
             updateSSRPLinesList();
             renderSSRP();
@@ -736,7 +759,6 @@ end</pre>
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Background Image or Placeholder
             if (ssrpImage) {
                 ctx.drawImage(ssrpImage, 0, 0, canvas.width, canvas.height);
             } else {
@@ -749,7 +771,6 @@ end</pre>
                 ctx.textAlign = 'left';
             }
 
-            // Draw Chat Lines
             const startX = parseInt(document.getElementById('ssrp-pos-x').value);
             let currentY = parseInt(document.getElementById('ssrp-pos-y').value);
 
@@ -757,18 +778,18 @@ end</pre>
                 const fontWeight = line.isBold ? 'bold' : 'normal';
                 ctx.font = `${fontWeight} ${line.size}px Tahoma, Arial, sans-serif`;
 
-                // Stroke Effect (Outline Hitam khas SA-MP)
+                // Outline hitam khas chatbox GTA SA-MP
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 3;
                 ctx.lineJoin = 'miter';
                 ctx.miterLimit = 2;
                 ctx.strokeText(line.text, startX, currentY);
 
-                // Text Fill
+                // Isian warna teks
                 ctx.fillStyle = line.color;
                 ctx.fillText(line.text, startX, currentY);
 
-                currentY += line.size + 6; // Line spacing
+                currentY += line.size + 6;
             });
         }
 
