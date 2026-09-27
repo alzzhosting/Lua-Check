@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Daftar Pola Bahaya & Indikator Stealer/Keylogger
+// Pola Deteksi Bahaya / Stealer
 const dangerPatterns = [
     { pattern: /loadstring/i, desc: 'Eksekusi kode jarak jauh (`loadstring`)' },
     { pattern: /downloadFile|asyncHttpRequest/i, desc: 'Mencoba mengunduh file otomatis / Request latar belakang' },
@@ -21,7 +21,7 @@ const dangerPatterns = [
     { pattern: /discord\.com\/api\/webhooks/i, desc: 'Potensi Webhook Stealer (Mengirim data ke Discord)' },
     { pattern: /os\.execute|os\.remove|os\.rename/i, desc: 'Akses sistem file / Command Prompt OS' },
     { pattern: /getBotToken|getToken|passWord|sampGetPlayerPassword/i, desc: 'Pencarian data sensitif / Password / Token' },
-    { pattern: /string\.char\(\s*\d+(\s*,\s*\d+){5,}\)/i, desc: 'Enkripsi Bytecode (`string.char`) - Berpotensi menyembunyikan kode' },
+    { pattern: /string\.char\(\s*\d+(\s*,\s*\d+){5,}\)/i, desc: 'Enkripsi Bytecode (`string.char`) - Kode disamarkan' },
     { pattern: /\\x[0-9a-fA-F]{2}/i, desc: 'Hex Obfuscation (`\\xXX`) - Kode disamarkan' },
     { pattern: /sampGetPlayerNickname|getUsername/i, desc: 'Pengambilan Username / Nickname Pemain' },
     { pattern: /onWindowMessage|getAsyncKeyState|vkeys/i, desc: 'Pencatatan input tombol / Potensi Keylogger' }
@@ -42,7 +42,6 @@ app.post('/api/check-lua', (req, res) => {
     let syntaxValid = false;
     let syntaxError = null;
 
-    // 1. Memeriksa Sintaks Kode
     try {
         luaparse.parse(code, { luaVersion: '5.1' });
         syntaxValid = true;
@@ -50,7 +49,6 @@ app.post('/api/check-lua', (req, res) => {
         syntaxError = `Error Sintaks pada Baris ${err.line}, Kolom ${err.column}: ${err.message}`;
     }
 
-    // 2. Memindai Indikator Bahaya (Security Scan)
     const detectedWarnings = [];
     dangerPatterns.forEach(item => {
         if (item.pattern.test(code)) {
@@ -74,10 +72,8 @@ app.post('/api/obfuscate-lua', (req, res) => {
     }
 
     try {
-        // Validasi sintaks sebelum di-obfuscate
         luaparse.parse(code, { luaVersion: '5.1' });
 
-        // Konversi setiap karakter string menjadi nilai Byte
         const bytes = [];
         for (let i = 0; i < code.length; i++) {
             bytes.push(code.charCodeAt(i));
@@ -87,7 +83,7 @@ app.post('/api/obfuscate-lua', (req, res) => {
         const varStr = '_0x' + Math.random().toString(36).substring(2, 8);
 
         const obfuscatedCode = `-- ===============================================
--- Protected with SA-MP Lua Studio
+-- Protected with SA-MP Lua Studio v2.0
 -- Compatible: Moonloader (PC) & Monetloader (Android)
 -- ===============================================
 local ${varData} = {${bytes.join(',')}}
@@ -117,5 +113,7 @@ end`;
 
 // Menjalankan Server
 app.listen(PORT, () => {
-    console.log(`Server SA-MP Lua Studio aktif di http://localhost:${PORT}`);
+    console.log(`=================================================`);
+    console.log(`SA-MP Lua Studio v2.0 Aktif di: http://localhost:${PORT}`);
+    console.log(`=================================================`);
 });
