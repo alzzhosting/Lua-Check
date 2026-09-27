@@ -50,7 +50,6 @@
             background-attachment: fixed;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -66,7 +65,6 @@
             background: #334155;
         }
 
-        /* Glassmorphism Effect */
         .glass-panel {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
@@ -81,14 +79,19 @@
         .glow-indigo:hover {
             box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
         }
+
+        /* Area Dropzone Highlight */
+        .dropzone-active {
+            border-color: #06b6d4 !important;
+            background-color: rgba(6, 182, 212, 0.15) !important;
+        }
     </style>
 </head>
 <body class="font-sans text-slate-200 min-h-screen flex flex-col justify-between p-3 sm:p-6 md:p-8 selection:bg-cyan-500 selection:text-black">
 
-    <!-- Container Utama -->
     <div class="max-w-6xl mx-auto w-full">
         
-        <!-- Header Studio -->
+        <!-- Header -->
         <header class="text-center mb-6 sm:mb-8">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-3 tracking-wide uppercase">
                 <i class="fa-solid fa-gamepad text-sm"></i> GTA SA-MP Scripting Tools
@@ -115,21 +118,24 @@
 
         <!-- TAB 1: CEK SYNTAX & KEAMANAN LUA -->
         <div id="tab-check" class="glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
                     <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-code text-cyan-400"></i> Validator & Security Scanner
                     </h2>
-                    <p class="text-slate-400 text-xs sm:text-sm">Periksa error kodingan dan deteksi fungsi berbahaya / stealer.</p>
+                    <p class="text-slate-400 text-xs sm:text-sm">Tarik & lepas file `.lua` ke area di bawah atau ketik langsung.</p>
                 </div>
-                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">
-                    <i class="fa-brands fa-lua text-blue-400"></i> Lua 5.1
-                </span>
+                
+                <!-- Input File Picker (Hidden Real Input + Styled Label Button) -->
+                <label class="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-cyan-300 transition shadow-md">
+                    <i class="fa-solid fa-file-arrow-up text-cyan-400"></i> Pilih File .LUA
+                    <input type="file" id="file-picker-check" accept=".lua,.txt" class="hidden">
+                </label>
             </div>
             
-            <!-- Editor Textarea -->
-            <div class="relative rounded-2xl overflow-hidden border border-slate-700/70 focus-within:border-cyan-500 transition-colors bg-slate-950/80">
-                <textarea id="lua-check-input" oninput="updateStats('check')" rows="12" class="w-full bg-transparent p-4 text-cyan-100 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Tempelkan kode Lua GTA SA-MP kamu di sini&#10;function main()&#10;    if not isSampLoaded() or not isSampfuncsLoaded() then return end&#10;    while not isSampAvailable() do wait(100) end&#10;    sampAddChatMessage('{00FF00}[Studio]{FFFFFF} Script berhasil dimuat!', -1)&#10;end"></textarea>
+            <!-- Editor Textarea dengan Dropzone -->
+            <div id="dropzone-check" class="relative rounded-2xl overflow-hidden border-2 border-dashed border-slate-700/80 focus-within:border-cyan-500 transition-all bg-slate-950/80">
+                <textarea id="lua-check-input" oninput="updateStats('check')" rows="12" class="w-full bg-transparent p-4 text-cyan-100 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Tarik & lepas file .lua di sini, atau ketik kode Lua GTA SA-MP kamu...&#10;function main()&#10;    if not isSampLoaded() or not isSampfuncsLoaded() then return end&#10;    while not isSampAvailable() do wait(100) end&#10;    sampAddChatMessage('{00FF00}[Studio]{FFFFFF} Script berhasil dimuat!', -1)&#10;end"></textarea>
                 
                 <!-- Footer Info Area -->
                 <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
@@ -152,11 +158,18 @@
 
         <!-- TAB 2: OBFUSCATOR LUA -->
         <div id="tab-obfuscate" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
-            <div class="mb-4">
-                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-user-shield text-indigo-400"></i> Lua Bytecode Encrypter
-                </h2>
-                <p class="text-slate-400 text-xs sm:text-sm">Enkripsi kode Lua kamu agar aman dari *decompile* atau pencurian karya.</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-indigo-400"></i> Lua Bytecode Encrypter
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Enkripsi kode Lua kamu agar aman dari decompile atau pencurian karya.</p>
+                </div>
+
+                <label class="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-indigo-300 transition shadow-md">
+                    <i class="fa-solid fa-file-arrow-up text-indigo-400"></i> Pilih File .LUA
+                    <input type="file" id="file-picker-obf" accept=".lua,.txt" class="hidden">
+                </label>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -165,8 +178,8 @@
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-file-code text-cyan-400"></i> Kode Asli (Source)
                     </label>
-                    <div class="rounded-2xl overflow-hidden border border-slate-700/70 focus-within:border-indigo-500 transition-colors bg-slate-950/80">
-                        <textarea id="lua-obf-input" oninput="updateStats('obf')" rows="12" class="w-full bg-transparent p-4 text-slate-200 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Masukkan kode asli di sini&#10;print('Hello SA-MP World')"></textarea>
+                    <div id="dropzone-obf" class="rounded-2xl overflow-hidden border-2 border-dashed border-slate-700/80 focus-within:border-indigo-500 transition-all bg-slate-950/80">
+                        <textarea id="lua-obf-input" oninput="updateStats('obf')" rows="12" class="w-full bg-transparent p-4 text-slate-200 font-mono text-xs sm:text-sm focus:outline-none resize-y placeholder-slate-600 leading-relaxed" placeholder="-- Tarik & lepas file .lua di sini atau ketik kode asli...&#10;print('Hello SA-MP World')"></textarea>
                         <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2 text-xs text-slate-400 font-mono">
                             <span id="obf-stats"><i class="fa-regular fa-file-code mr-1"></i> 0 Baris</span>
                         </div>
@@ -208,6 +221,70 @@
 
     <!-- Client Logic Script -->
     <script>
+        // Inisialisasi Event Listener setelah halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDragAndDrop('lua-check-input', 'dropzone-check', 'file-picker-check', 'check');
+            setupDragAndDrop('lua-obf-input', 'dropzone-obf', 'file-picker-obf', 'obf');
+        });
+
+        // Fungsi Penanganan Drag & Drop serta File Picker
+        function setupDragAndDrop(textareaId, dropzoneId, filePickerId, type) {
+            const textarea = document.getElementById(textareaId);
+            const dropzone = document.getElementById(dropzoneId);
+            const filePicker = document.getElementById(filePickerId);
+
+            // 1. Pilih File lewat Tombol (File Picker)
+            filePicker.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) processFile(file, textarea, type);
+            });
+
+            // 2. Efek Visual saat File Diseret di Atas Area Dropzone
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add('dropzone-active');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove('dropzone-active');
+                }, false);
+            });
+
+            // 3. Eksekusi Pembacaan File saat File Dilepas (Drop)
+            dropzone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    processFile(files[0], textarea, type);
+                }
+            }, false);
+        }
+
+        // Fungsi Membaca Isi File dengan FileReader
+        function processFile(file, textarea, type) {
+            if (!file.name.endsWith('.lua') && !file.name.endsWith('.txt')) {
+                alert('Peringatan: Harap pilih file dengan ekstensi .lua atau .txt!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                textarea.value = e.target.result;
+                updateStats(type);
+                
+                // Jika dimasukkan di tab "Cek & Scan", jalankan pemeriksaan otomatis
+                if (type === 'check') {
+                    checkLua();
+                }
+            };
+            reader.readAsText(file);
+        }
+
         function switchTab(tab) {
             const tabCheck = document.getElementById('tab-check');
             const tabObf = document.getElementById('tab-obfuscate');
@@ -248,7 +325,7 @@
                 resultBox.innerHTML = `
                     <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3">
                         <i class="fa-solid fa-triangle-exclamation text-xl text-red-400"></i>
-                        <span>Masukkan kode Lua terlebih dahulu!</span>
+                        <span>Masukkan atau tarik file .lua terlebih dahulu!</span>
                     </div>`;
                 resultBox.classList.remove('hidden');
                 return;
@@ -286,13 +363,13 @@
                         </div>`;
                 }
 
-                // 2. Status Keamanan (Security Warnings)
+                // 2. Status Keamanan
                 if (data.warnings && data.warnings.length > 0) {
                     let warningList = data.warnings.map(item => `<li class="flex items-center gap-2"><i class="fa-solid fa-chevron-right text-amber-400 text-[10px]"></i> ${item}</li>`).join('');
                     htmlOutput += `
                         <div class="p-4 rounded-2xl bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs sm:text-sm">
                             <div class="font-bold text-amber-300 mb-2 flex items-center gap-2 text-sm">
-                                <i class="fa-solid fa-shield-cat text-lg text-amber-400"></i> Peringatan Potensi Bahaya / Stealer:
+                                <i class="fa-solid fa-shield-cat text-lg text-amber-400"></i> Peringatan Potensi Bahaya / Obfuscation / Stealer:
                             </div>
                             <ul class="space-y-1.5 font-mono text-xs opacity-95 bg-slate-950/60 p-3 rounded-xl border border-amber-500/20">${warningList}</ul>
                         </div>`;
@@ -327,7 +404,7 @@
                 statusBox.innerHTML = `
                     <div class="p-4 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-3">
                         <i class="fa-solid fa-triangle-exclamation text-xl text-red-400"></i>
-                        <span>Masukkan kode Lua yang ingin di-obfuscate!</span>
+                        <span>Masukkan atau tarik file .lua yang ingin di-obfuscate!</span>
                     </div>`;
                 statusBox.classList.remove('hidden');
                 return;
