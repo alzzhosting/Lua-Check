@@ -60,7 +60,6 @@
             transition: transform 0.3s ease-in-out;
         }
 
-        /* Mencegah teks keluar dari container */
         pre, code {
             white-space: pre-wrap !important;
             word-break: break-all !important;
@@ -248,7 +247,7 @@
 
                         <div>
                             <label class="block text-[10px] uppercase text-slate-400 mb-1">Teks Chat / Aksi RP</label>
-                            <input type="text" id="ssrp-text-input" placeholder="Contoh: sedang melihat orang di depan" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
+                            <input type="text" id="ssrp-text-input" placeholder="Contoh: halo" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-purple-500">
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
@@ -257,7 +256,7 @@
                                 <select id="ssrp-type-select" onchange="applySSRPTypePreset()" class="w-full bg-slate-900 border border-slate-700 p-2 rounded-xl text-white text-xs font-semibold">
                                     <option value="me">/me (Otomatis *)</option>
                                     <option value="do">/do (Otomatis (( Nama )))</option>
-                                    <option value="talk">Chat Biasa (Putih)</option>
+                                    <option value="talk">Chat Biasa (Otomatis says:)</option>
                                 </select>
                             </div>
                             <div>
@@ -695,7 +694,7 @@ end</pre>
             reader.readAsDataURL(file);
         }
 
-        // FUNGSI UTAMA OTOMATISASI PENAMBAHAN FORMAT /ME & /DO
+        // LOGIKA UTAMA OTOMATISASI PENAMBAHAN FORMAT (/me, /do, dan talk)
         function addSSRPLine() {
             const textInput = document.getElementById('ssrp-text-input');
             const charNameInput = document.getElementById('ssrp-char-name');
@@ -712,19 +711,22 @@ end</pre>
 
             // Logika Otomatisasi Format
             if (type === 'me') {
-                // Jika belum diawali '*', buat format: * Nama Teks
                 if (!rawText.startsWith('*')) {
                     formattedText = `* ${charName} ${rawText}`;
                 }
             } else if (type === 'do') {
-                // Jika belum ada '((', buat format: Teks (( Nama ))
                 if (!rawText.includes('((')) {
                     formattedText = `${rawText} (( ${charName} ))`;
+                }
+            } else if (type === 'talk') {
+                // Jika belum ada kata 'says:', buat format otomatis: Nama says: Teks
+                if (!rawText.toLowerCase().includes('says:')) {
+                    formattedText = `${charName} says: ${rawText}`;
                 }
             }
 
             ssrpLines.push({ text: formattedText, color, size, isBold });
-            textInput.value = ''; // Bersihkan input teks saja
+            textInput.value = ''; // Bersihkan input teks
             
             updateSSRPLinesList();
             renderSSRP();
