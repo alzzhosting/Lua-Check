@@ -5,7 +5,7 @@ const luaparse = require('luaparse');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware Parse JSON dan Form Data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -14,7 +14,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // =========================================================================
-// PENGATURAN & LINK DOWNLOAD CLIENT SA-MP ANDROID (Ubah Link Di Sini!)
+// 1. PENGATURAN LINK DOWNLOAD CLIENT SA-MP ANDROID
 // =========================================================================
 const androidClients = [
     {
@@ -59,34 +59,71 @@ const androidClients = [
     }
 ];
 
-// Pola Deteksi Bahaya / Stealer
+// =========================================================================
+// 2. DETEKTOR POLA KODE LUA BERBAHAYA / STEALER
+// =========================================================================
 const dangerPatterns = [
     { pattern: /loadstring/i, desc: 'Eksekusi kode jarak jauh (`loadstring`)' },
-    { pattern: /downloadFile|asyncHttpRequest/i, desc: 'Mencoba mengunduh file otomatis / Request latar belakang' },
-    { pattern: /http\.request|socket\.http|copas\.http/i, desc: 'Koneksi HTTP ke luar server' },
-    { pattern: /discord\.com\/api\/webhooks/i, desc: 'Potensi Webhook Stealer (Mengirim data ke Discord)' },
-    { pattern: /os\.execute|os\.remove|os\.rename/i, desc: 'Akses sistem file / Command Prompt OS' },
-    { pattern: /getBotToken|getToken|passWord|sampGetPlayerPassword/i, desc: 'Pencarian data sensitif / Password / Token' },
-    { pattern: /string\.char\(\s*\d+(\s*,\s*\d+){5,}\)/i, desc: 'Enkripsi Bytecode (`string.char`) - Kode disamarkan' },
-    { pattern: /\\x[0-9a-fA-F]{2}/i, desc: 'Hex Obfuscation (`\\xXX`) - Kode disamarkan' },
-    { pattern: /sampGetPlayerNickname|getUsername/i, desc: 'Pengambilan Username / Nickname Pemain' },
-    { pattern: /onWindowMessage|getAsyncKeyState|vkeys/i, desc: 'Pencatatan input tombol / Potensi Keylogger' }
+    { pattern: /downloadFile|asyncHttpRequest/i, desc: 'Pengunduhan file otomatis di latar belakang' },
+    { pattern: /http\.request|socket\.http|copas\.http/i, desc: 'Koneksi jaringan HTTP ke luar' },
+    { pattern: /discord\.com\/api\/webhooks/i, desc: 'Potensi Discord Webhook Stealer' },
+    { pattern: /os\.execute|os\.remove|os\.rename/i, desc: 'Akses langsung ke perintah sistem operasi' },
+    { pattern: /getBotToken|getToken|passWord|sampGetPlayerPassword/i, desc: 'Pencarian kata sandi atau token sensitif' },
+    { pattern: /string\.char\(\s*\d+(\s*,\s*\d+){5,}\)/i, desc: 'Enkripsi Bytecode (`string.char`) disamarkan' },
+    { pattern: /\\x[0-9a-fA-F]{2}/i, desc: 'Hex Obfuscation disamarkan' },
+    { pattern: /sampGetPlayerNickname|getUsername/i, desc: 'Pengambilan nama pengguna pemain' },
+    { pattern: /onWindowMessage|getAsyncKeyState|vkeys/i, desc: 'Pencatat tombol keyboard (Keylogger)' }
 ];
 
-// Route Utama
+// =========================================================================
+// 3. ROUTE DAN API ENDPOINTS
+// =========================================================================
+
+// Halaman Utama
 app.get('/', (req, res) => {
     res.render('index');
 });
 
-// API Endpoint untuk Mendapatkan Daftar Client Android
+// API Get Client Android
 app.get('/api/clients', (req, res) => {
-    return res.json({
-        success: true,
-        clients: androidClients
-    });
+    return res.json({ success: true, clients: androidClients });
 });
 
-// API Cek Syntax & Keamanan Lua
+// API Bypass Link Shortener (sfl.gl)
+app.post('/api/bypass-url', async (req, res) => {
+    const { url } = req.body;
+
+    if (!url || url.trim() === '') {
+        return res.json({ success: false, message: 'URL tidak boleh kosong!' });
+    }
+
+    try {
+        const response = await fetch('https://zennq.my.id/api/bypass', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': 'zq_s3utsc8yfqw2ung1w8rybkqxr9fl1gcb'
+            },
+            body: JSON.stringify({ url: url.trim() })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server API merespons dengan status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.data && data.data.bypassedUrl) {
+            return res.json({ success: true, bypassedUrl: data.data.bypassedUrl });
+        } else {
+            return res.json({ success: false, message: 'Format tautan tidak didukung atau gagal di-bypass.' });
+        }
+    } catch (err) {
+        return res.json({ success: false, message: `Gagal terhubung ke server bypass: ${err.message}` });
+    }
+});
+
+// API Cek Syntax Lua
 app.post('/api/check-lua', (req, res) => {
     const { code } = req.body;
     if (!code || code.trim() === '') {
@@ -110,12 +147,7 @@ app.post('/api/check-lua', (req, res) => {
         }
     });
 
-    return res.json({
-        success: true,
-        syntaxValid,
-        syntaxError,
-        warnings: detectedWarnings
-    });
+    return res.json({ success: true, syntaxValid, syntaxError, warnings: detectedWarnings });
 });
 
 // API Obfuscate Lua
@@ -137,7 +169,7 @@ app.post('/api/obfuscate-lua', (req, res) => {
         const varStr = '_0x' + Math.random().toString(36).substring(2, 8);
 
         const obfuscatedCode = `-- ===============================================
--- Protected with SAMP-TOOLS VERNOZ
+-- Protected with SAMP-TOOLS VERNOZ v5.0
 -- Compatible: Moonloader (PC) & Monetloader (Android)
 -- ===============================================
 local ${varData} = {${bytes.join(',')}}
@@ -153,21 +185,15 @@ else
     _fn()
 end`;
 
-        return res.json({
-            success: true,
-            result: obfuscatedCode
-        });
+        return res.json({ success: true, result: obfuscatedCode });
     } catch (err) {
-        return res.json({
-            success: false,
-            message: `Gagal Obfuscate! Perbaiki error sintaks terlebih dahulu: ${err.message}`
-        });
+        return res.json({ success: false, message: `Gagal Obfuscate! Perbaiki sintaks terlebih dahulu: ${err.message}` });
     }
 });
 
-// Menjalankan Server
+// Jalankan Server
 app.listen(PORT, () => {
     console.log(`=================================================`);
-    console.log(`SAMP-TOOLS VERNOZ Aktif di: http://localhost:${PORT}`);
+    console.log(`SAMP-TOOLS VERNOZ v5.0 Berjalan di: http://localhost:${PORT}`);
     console.log(`=================================================`);
 });
