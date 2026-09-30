@@ -89,6 +89,43 @@ app.get('/api/clients', (req, res) => {
     return res.json({ success: true, clients: androidClients });
 });
 
+// API Convert URL to Top4Top.io (NEW FITUR!)
+app.post('/api/convert-top4top', async (req, res) => {
+    const { url, type } = req.body;
+
+    if (!url || url.trim() === '') {
+        return res.json({ success: false, message: 'URL target tidak boleh kosong!' });
+    }
+
+    try {
+        const response = await fetch('https://zennq.my.id/api/upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': 'zq_s3utsc8yfqw2ung1w8rybkqxr9fl1gcb'
+            },
+            body: JSON.stringify({
+                url: url.trim(),
+                type: type || 'youtube'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server API merespons dengan status HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.data && data.data.top4topUrl) {
+            return res.json({ success: true, top4topUrl: data.data.top4topUrl });
+        } else {
+            return res.json({ success: false, message: 'Gagal mengonversi URL. Pastikan link dapat diakses.' });
+        }
+    } catch (err) {
+        return res.json({ success: false, message: `Gagal terhubung ke server konversi: ${err.message}` });
+    }
+});
+
 // API Bypass Link Shortener (sfl.gl)
 app.post('/api/bypass-url', async (req, res) => {
     const { url } = req.body;
@@ -169,7 +206,7 @@ app.post('/api/obfuscate-lua', (req, res) => {
         const varStr = '_0x' + Math.random().toString(36).substring(2, 8);
 
         const obfuscatedCode = `-- ===============================================
--- Protected with SAMP-TOOLS VERNOZ v5.0
+-- Protected with SAMP-TOOLS VERNOZ
 -- Compatible: Moonloader (PC) & Monetloader (Android)
 -- ===============================================
 local ${varData} = {${bytes.join(',')}}
@@ -194,6 +231,6 @@ end`;
 // Jalankan Server
 app.listen(PORT, () => {
     console.log(`=================================================`);
-    console.log(`SAMP-TOOLS VERNOZ v5.0 Berjalan di: http://localhost:${PORT}`);
+    console.log(`SAMP-TOOLS VERNOZ Berjalan di: http://localhost:${PORT}`);
     console.log(`=================================================`);
 });
