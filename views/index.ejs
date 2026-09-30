@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMP-TOOLS VERNOZ v5.0</title>
+    <title>SAMP-TOOLS VERNOZ</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -83,39 +83,42 @@
                 </button>
             </div>
 
-            <nav class="mt-6 space-y-1.5">
-                <button onclick="selectTool('check')" id="nav-check" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+            <nav class="mt-6 space-y-1">
+                <button onclick="selectTool('check')" id="nav-check" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                     <i class="fa-solid fa-shield-halved text-lg"></i> 1. Cek & Scan Lua
                 </button>
-                <button onclick="selectTool('obfuscate')" id="nav-obfuscate" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('obfuscate')" id="nav-obfuscate" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-lock text-lg"></i> 2. Obfuscator Lua
                 </button>
-                <button onclick="selectTool('ssrp')" id="nav-ssrp" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('ssrp')" id="nav-ssrp" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-camera text-lg"></i> 3. SSRP Maker / Chat RP
                 </button>
-                <button onclick="selectTool('vehskin')" id="nav-vehskin" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('vehskin')" id="nav-vehskin" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-car text-lg"></i> 4. Vehicle & Skin DB
                 </button>
-                <button onclick="selectTool('anim')" id="nav-anim" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('anim')" id="nav-anim" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-person-running text-lg"></i> 5. AnimList Finder
                 </button>
-                <button onclick="selectTool('weapon')" id="nav-weapon" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('weapon')" id="nav-weapon" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-gun text-lg"></i> 6. Weapon & Damage Calc
                 </button>
-                <button onclick="selectTool('bypass')" id="nav-bypass" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('bypass')" id="nav-bypass" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-link-slash text-lg text-purple-400"></i> 7. Bypass Link Shortener
                 </button>
-                <button onclick="selectTool('client')" id="nav-client" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('client')" id="nav-client" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-brands fa-android text-lg text-emerald-400"></i> 8. Client Android
                 </button>
-                <button onclick="selectTool('credit')" id="nav-credit" class="w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                <button onclick="selectTool('top4top')" id="nav-top4top" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+                    <i class="fa-solid fa-cloud-arrow-up text-lg text-amber-400"></i> 10. URL to Top4Top
+                </button>
+                <button onclick="selectTool('credit')" id="nav-credit" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white">
                     <i class="fa-solid fa-circle-info text-lg"></i> 9. Credit & Info
                 </button>
             </nav>
         </div>
 
         <div class="text-xs text-slate-500 text-center border-t border-slate-800 pt-4">
-            SAMP-TOOLS VERNOZ &bull; v5.0
+            SAMP-TOOLS VERNOZ &bull; Utility Suite
         </div>
     </aside>
 
@@ -138,7 +141,7 @@
             </div>
 
             <span class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
-                <i class="fa-solid fa-code-commit text-cyan-400 mr-1"></i> v5.0
+                <i class="fa-solid fa-code-commit text-cyan-400 mr-1"></i> Active
             </span>
         </header>
 
@@ -461,7 +464,7 @@
             </div>
         </div>
 
-        <!-- TOOL 7: TAB BYPASS LINK SHORTENER (NEW!) -->
+        <!-- TOOL 7: TAB BYPASS LINK SHORTENER -->
         <div id="tool-bypass" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
             <div class="mb-6">
                 <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
@@ -481,7 +484,6 @@
                     </div>
                 </div>
 
-                <!-- Hasil Bypass -->
                 <div id="bypass-result-card" class="hidden p-5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
                     <span class="block text-xs font-bold text-emerald-400 uppercase"><i class="fa-solid fa-circle-check mr-1"></i> Tautan Asli Ditemukan!</span>
                     <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 font-mono text-xs text-cyan-300 break-all" id="bypass-url-output"></div>
@@ -514,6 +516,52 @@
             </div>
         </div>
 
+        <!-- TOOL 10: TAB URL TO TOP4TOP CONVERTER (NEW!) -->
+        <div id="tool-top4top" class="hidden glass-panel rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
+            <div class="mb-6">
+                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-amber-400"></i> URL to Top4Top.io Converter
+                </h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Konversi link media atau YouTube menjadi tautan hosting Top4Top.io secara instan.</p>
+            </div>
+
+            <div class="max-w-2xl space-y-4">
+                <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Tipe Source / Media</label>
+                        <select id="top4top-type-select" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-amber-500">
+                            <option value="youtube">YouTube Video</option>
+                            <option value="url">Direct URL / File Media</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Masukkan Link Target</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="top4top-url-input" placeholder="Contoh: https://youtu.be/C3DlM19x4RQ" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-amber-500">
+                            <button onclick="executeTop4TopConvert()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs transition shadow-lg shadow-amber-600/30 flex items-center gap-2 whitespace-nowrap">
+                                <i class="fa-solid fa-bolt"></i> Konversi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hasil Konversi Top4Top -->
+                <div id="top4top-result-card" class="hidden p-5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+                    <span class="block text-xs font-bold text-emerald-400 uppercase"><i class="fa-solid fa-circle-check mr-1"></i> Tautan Top4Top Berhasil Dibuat!</span>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 font-mono text-xs text-amber-300 break-all" id="top4top-url-output"></div>
+                    <div class="flex justify-end gap-2">
+                        <button onclick="copyOutput('top4top-url-output')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-sans flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i> Salin Link
+                        </button>
+                        <a id="top4top-open-link" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-sans flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Link Top4Top
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- TOOL 9: TAB CREDIT -->
         <div id="tool-credit" class="hidden glass-panel rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl">
             <div class="text-center max-w-2xl mx-auto space-y-6">
@@ -523,11 +571,11 @@
 
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-white">SAMP-TOOLS VERNOZ</h2>
-                    <p class="text-cyan-400 font-mono text-xs sm:text-sm mt-1">Versi 5.0 &bull; Utility Suite Komunitas SA-MP Indonesia</p>
+                    <p class="text-cyan-400 font-mono text-xs sm:text-sm mt-1">Utility Suite Komunitas SA-MP Indonesia</p>
                 </div>
 
                 <p class="text-slate-300 text-xs sm:text-sm leading-relaxed bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
-                    Aplikasi web ini dikembangkan khusus untuk mempermudah para *scripter* dan *player* GTA SA-MP dalam memvalidasi keamanan kode Lua, mengamankan script (*Obfuscator*), membuat *screenshot* Roleplay (SSRP), mencari ID kendaraan, skin, animasi, damage senjata, bypass link, serta mengunduh client Android.
+                    Aplikasi web ini dikembangkan khusus untuk mempermudah para *scripter* dan *player* GTA SA-MP dalam memvalidasi keamanan kode Lua, mengamankan script (*Obfuscator*), membuat *screenshot* Roleplay (SSRP), mencari ID kendaraan, skin, animasi, damage senjata, bypass link, mengonversi URL media ke Top4Top, serta mengunduh client Android.
                 </p>
 
                 <div class="pt-4 border-t border-slate-800 text-xs text-slate-400">
@@ -702,16 +750,56 @@
         }
 
         function selectTool(toolName) {
-            const tools = ['check', 'obfuscate', 'ssrp', 'vehskin', 'anim', 'weapon', 'bypass', 'client', 'credit'];
+            const tools = ['check', 'obfuscate', 'ssrp', 'vehskin', 'anim', 'weapon', 'bypass', 'client', 'top4top', 'credit'];
             tools.forEach(t => {
                 document.getElementById(`tool-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = "w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white";
+                document.getElementById(`nav-${t}`).className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 text-slate-400 hover:bg-slate-800/60 hover:text-white";
             });
 
             document.getElementById(`tool-${toolName}`).classList.remove('hidden');
-            document.getElementById(`nav-${toolName}`).className = "w-full text-left px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
+            document.getElementById(`nav-${toolName}`).className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-3 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
             
             toggleSidebar();
+        }
+
+        // EXECUTE CONVERT TOP4TOP
+        async function executeTop4TopConvert() {
+            const input = document.getElementById('top4top-url-input');
+            const typeSelect = document.getElementById('top4top-type-select');
+            const resultCard = document.getElementById('top4top-result-card');
+            const outputArea = document.getElementById('top4top-url-output');
+            const openLinkBtn = document.getElementById('top4top-open-link');
+
+            const url = input.value.trim();
+            const type = typeSelect.value;
+
+            if (!url) {
+                alert('✕ Masukkan URL target terlebih dahulu!');
+                return;
+            }
+
+            outputArea.innerText = "Sedang mengonversi URL ke Top4Top.io...";
+            resultCard.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/convert-top4top', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, type })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    outputArea.innerText = data.top4topUrl;
+                    openLinkBtn.href = data.top4topUrl;
+                } else {
+                    outputArea.innerText = `✕ ${data.message}`;
+                    openLinkBtn.href = "#";
+                }
+            } catch (err) {
+                outputArea.innerText = "✕ Gagal terhubung ke server.";
+            }
         }
 
         // EXECUTE BYPASS LINK SHORTENER
